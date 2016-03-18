@@ -27,6 +27,7 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 	FileReader* fr = new FileReader(argv[1]);
+	fr->printTokens();
 	return 0;
 }
 

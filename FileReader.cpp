@@ -33,21 +33,23 @@ void FileReader::genTokens(){
 		line_number++;
 		int start = 0;
 		while(start >= 0){
-			cout << getWord(line, line_number, &start) << endl;
+			Token* t = getWord(line, line_number, &start);
+			if(t != NULL)
+				this->tokens.push_back(t);
 		}
 	}
 }
 
-string FileReader::getWord(string line, int line_number, int* start /*= 0*/){
+Token* FileReader::getWord(string line, int line_number, int* start /*= 0*/){
 	if(*start < 0 || *start > line.length()){
 		*start = -1;
-		return "";
+		return NULL;
 	}
 	
 	string partial = *start == 0 ? line : line.substr(*start);
 	if(partial.empty()){
 		*start = -1;
-		return "";
+		return NULL;
 	}
 	string word = "";
 	for(int i = 0; i < partial.length(); i++){
@@ -68,19 +70,25 @@ string FileReader::getWord(string line, int line_number, int* start /*= 0*/){
 			word += c;
 		if(is_operator(c) && !word.empty()){
 			*start -= 1;
-			return word;
+			return new Token(line_number, *start, word, keyword(word));
 		}
-		if(c == ' ' || c == '\t')
-			return word;
+		if(c == ' ' || c == '\t'){
+			if(word.empty())
+				return NULL;
+			return new Token(line_number, *start - 1, word, keyword(word));
+		}
 		if(c == '\n'){
 			*start = -1;
-			return word;
+			if(word.empty())
+				return NULL;
+			return new Token(line_number, *start, word, keyword(word));
 		}
 	}
-	return word;
+	
+	return NULL;
 }
 
-string FileReader::getString(string partial, int line_number, int i, int* start){
+Token* FileReader::getString(string partial, int line_number, int i, int* start){
 	if(partial.at(i) != '\"'){
 		cout << "Error at FileReader::getString(string,int,int,int*)\n";
 		cout << "\tString does not begin with \" \" \" character" << endl;
@@ -96,11 +104,12 @@ string FileReader::getString(string partial, int line_number, int i, int* start)
 			res += partial.at(j);
 		}
 		
-		if(res.at(j) == '\"')
-			return res;
+		if(res.at(j) == '\"'){
+			return new Token(line_number, *start - 1, res, Token::LITERAL);
+		}
 	}
 }
-string FileReader::getCar(string partial, int line_number, int i, int* start) {
+Token* FileReader::getCar(string partial, int line_number, int i, int* start) {
 	if(partial.at(i) != '\''){
 		cout << "Error at FileReader::getCar(string,int,int,int*)\n";
 		cout << "\tChar does not begin with \" \' \" character" << endl;
@@ -127,7 +136,7 @@ string FileReader::getCar(string partial, int line_number, int i, int* start) {
 			exit(1);
 		}
 		res += partial.at(i+3);
-		return res;
+		return new Token(line_number, *start - 1, res, Token::LITERAL);
 	}
 	*start += 1;
 	res += partial.at(i+1);
@@ -137,21 +146,21 @@ string FileReader::getCar(string partial, int line_number, int i, int* start) {
 		exit(1);
 	}
 	res += partial.at(i+2);
-	return res;
+	return new Token(line_number, *start - 1, res, Token::LITERAL);
 }
 
-string FileReader::getNumber(string partial, int line_number, int i, int* start){
+Token* FileReader::getNumber(string partial, int line_number, int i, int* start){
 	string res = "";
 	for(int j = i; j < partial.length(); j++){
 		switch(partial.at(j)){
 			case ' ':
 			case '\t':
 			case '\n':
-				return res;
+				return new Token(line_number, *start - 1, res, Token::LITERAL);
 			default:{
 				if(is_operator(partial.at(j))){
 					*start -= 1;
-					return res;
+					return new Token(line_number, *start, res, Token::LITERAL);
 				}
 				if(partial.at(j) < '0' || partial.at(j) > '9'){
 					cout << "Invalid number with '" << partial.at(j) << "' at line "
@@ -164,9 +173,10 @@ string FileReader::getNumber(string partial, int line_number, int i, int* start)
 		}
 		*start += 1;
 	}
+	return NULL;
 }
 
-string FileReader::getOperator(string partial, int line_number, int i, int* start){
+Token* FileReader::getOperator(string partial, int line_number, int i, int* start){
 	char first = partial.at(i);
 	if(!is_operator(first)){
 		cout << first << " is not an operator, at line: " << line_number << ", col: " << *start << endl;
@@ -175,7 +185,7 @@ string FileReader::getOperator(string partial, int line_number, int i, int* star
 	*start += 1;
 	if(partial.length() <= i+1){
 		*start -= 1;
-		return string(1, first);
+		return new Token(line_number, *start, string(1, first), Token::OPERATOR);
 	}
 	char second = partial.at(i+1);
 	if(is_operator(second)){
@@ -184,25 +194,31 @@ string FileReader::getOperator(string partial, int line_number, int i, int* star
 						it < this->operators2.end();
 						it++){
 			if(*it == operator2){
-				return operator2;
+				return new Token(line_number, *start, operator2, Token::OPERATOR2);
 			}
 		}
 		*start -= 1;
-		return string(1, first);
+		return new Token(line_number, *start, string(1, first), Token::OPERATOR);
 	} else {
 		*start -= 1;
-		return string(1, first);
+		return new Token(line_number, *start, string(1, first), Token::OPERATOR);
 	}
 }
 
-bool FileReader::is_keyword(string word){
-	for(vector<string>::iterator it = this->keywords.begin();
-					it != this->keywords.end();
+int FileReader::keyword(string word){
+	for(vector<string>::iterator it = this->types.begin();
+					it != this->types.end();
 					it++){
 		if(*it == word)
-			return true;
+			return Token::TYPE;
 	}
-	return false;
+	for(vector<string>::iterator it = this->commands.begin();
+					it != this->commands.end();
+					it++){
+		if(*it == word)
+			return Token::COMMAND;
+	}
+	return Token::NAME;
 }
 
 bool FileReader::is_operator(char c){
@@ -215,7 +231,7 @@ bool FileReader::is_operator(char c){
 	return false;
 }
 
-vector<Token> FileReader::getTokens(){
+vector<Token*> FileReader::getTokens(){
 	return this->tokens;
 }
 
@@ -223,3 +239,14 @@ FileReader::~FileReader() {
 	this->source.close();
 }
 
+void FileReader::printTokens(){
+	int i = 0;
+	cout << "Token <number>: (line_number, col_number, lexem, type)" << endl;
+	for(vector<Token*>::iterator it = this->tokens.begin();
+					it < this->tokens.end();
+					it++){
+		Token* t = *it;
+		cout << "Token " << ++i << ": (" << t->line_number << ", " 
+						<< t->col_number << ", " << t->lexem << ", " << t->type << ")" << endl;
+	}
+}

@@ -13,7 +13,13 @@
 
 #include "Token.h"
 
-Token::Token() {
+using namespace std;
+
+Token::Token(int line_number, int col_number, string lexem, int type){
+	this->line_number = line_number;
+	this->col_number = col_number;
+	this->lexem = lexem;
+	this->type = type;
 }
 
 Token::~Token() {

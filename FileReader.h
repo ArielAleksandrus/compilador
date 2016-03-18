@@ -24,27 +24,37 @@
 class FileReader {
 public:
 	/**
+	 * FileReader reads the source code file and generate Tokens.
 	 * 
-	 * 	 * @param path path to the source code.
+	 * 	@param path Path to the source code to be compiled.
 	 */
 	FileReader(std::string path);
-	std::vector<Token> getTokens();
+	std::vector<Token*> getTokens();
+	void printTokens();
 	virtual ~FileReader();
 	
 private:
 	
 	void genTokens();
 	
-	std::string getWord(std::string line, int line_number, int* start);
-	std::string getString(std::string partial, int line_number, int i, int* start);
-	std::string getCar(std::string partial, int line_number, int i, int* start);
-	std::string getNumber(std::string partial, int line_number, int i, int* start);
-	std::string getOperator(std::string partial, int line_number, int i, int* start);
+	Token* getWord(std::string line, int line_number, int* start);
+	Token* getString(std::string partial, int line_number, int i, int* start);
+	Token* getCar(std::string partial, int line_number, int i, int* start);
+	Token* getNumber(std::string partial, int line_number, int i, int* start);
+	Token* getOperator(std::string partial, int line_number, int i, int* start);
 	
-	bool is_keyword(std::string word);
+	/**
+	 * Checks if it is a keyword. If true, returns the type of the keyword
+	 * (e.g.: TYPE, COMMAND), based on the constants declared in Token.h.
+	 * 
+	 * 	@return Token::NAME If not a keyword
+	 *	@return Token::<type of keyword> If is a keyword
+	 */
+	int keyword(std::string word);
+	
 	bool is_operator(char c);
 	
-	std::vector<Token> tokens;
+	std::vector<Token*> tokens;
 	std::ifstream source;
 	
 	std::vector<char> operators = {
@@ -58,8 +68,13 @@ private:
 		"==", "<=", ">=", "!=",
 		"&&", "||"
 	};
-	std::vector<std::string> keywords = {
+	std::vector<std::string> commands = {
 		"programa",
+		"retorne",
+		"se",
+		"enquanto"
+	};
+	std::vector<std::string> types = {
 		"int",
 		"car"
 	};
