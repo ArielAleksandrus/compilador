@@ -34,7 +34,13 @@ public:
 private:
 	
 	void genTokens();
-	std::string getWord(std::string line, int* start);
+	
+	std::string getWord(std::string line, int line_number, int* start);
+	std::string getString(std::string partial, int line_number, int i, int* start);
+	std::string getCar(std::string partial, int line_number, int i, int* start);
+	std::string getNumber(std::string partial, int line_number, int i, int* start);
+	std::string getOperator(std::string partial, int line_number, int i, int* start);
+	
 	bool is_keyword(std::string word);
 	bool is_operator(char c);
 	
@@ -45,7 +51,8 @@ private:
 		'(', ')', '[', ']', '{', '}',
 		'+', '-', '*', '/',
 		'=', '!',
-		';'
+		',', ';', '?', ':',
+		'>', '<'
 	};
 	std::vector<std::string> operators2 = {
 		"==", "<=", ">=", "!=",

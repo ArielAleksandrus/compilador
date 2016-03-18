@@ -1,0 +1,8 @@
+int soma(int a, int b){
+    retorne a+b;
+}
+int proxChar(car a){
+    retorne a+1;
+}
+
+programa{}
