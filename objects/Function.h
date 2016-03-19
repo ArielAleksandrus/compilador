@@ -18,7 +18,7 @@
 #include <string>
 
 #include "../Token.h"
-#include "Argument.h"
+#include "Parameter.h"
 #include "Block.h"
 
 class Function {

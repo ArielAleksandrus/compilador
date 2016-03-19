@@ -5,21 +5,17 @@
  */
 
 /* 
- * File:   Argument.cpp
+ * File:   Command.cpp
  * Author: aleksandrus
  * 
- * Created on March 18, 2016, 8:36 PM
+ * Created on March 19, 2016, 2:32 AM
  */
 
-#include "Argument.h"
+#include "Command.h"
 
-using namespace std;
-
-Argument::Argument(Token* tipo, Token* nome) {
-	this->tipo = tipo;
-	this->nome = nome;
+Command::Command() {
 }
 
-Argument::~Argument() {
+Command::~Command() {
 }
 

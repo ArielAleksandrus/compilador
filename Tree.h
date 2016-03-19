@@ -19,7 +19,7 @@
 #include <string>
 
 #include "objects/Function.h"
-#include "objects/Argument.h"
+#include "objects/Parameter.h"
 #include "objects/Block.h"
 
 class Tree {

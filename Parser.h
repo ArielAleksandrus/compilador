@@ -18,7 +18,7 @@
 #include <vector>
 
 #include "objects/Function.h"
-#include "objects/Argument.h"
+#include "objects/Parameter.h"
 #include "objects/Block.h"
 #include "Token.h"
 #include "Tree.h"
@@ -31,6 +31,7 @@ private:
 	std::vector<Token*> tokens;
 	Function* checkFunction(int* position);
 	Block* getBlock(int* position);
+	std::vector<Variable*> getVariableDeclarations(int* position);
 };
 
 #endif /* PARSER_H */

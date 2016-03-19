@@ -13,7 +13,10 @@
 
 #include "Block.h"
 
-Block::Block() {
+using namespace std;
+
+Block::Block(vector<Variable*> variables) {
+	this->variables = variables;
 }
 
 Block::~Block() {

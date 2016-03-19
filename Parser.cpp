@@ -16,6 +16,7 @@
 #include "Parser.h"
 #include "SyntaticException.h"
 #include "Tree.h"
+#include "objects/Variable.h"
 
 using namespace std;
 
@@ -46,7 +47,7 @@ Function* Parser::checkFunction(int* position){
 		if(func_name = this->tokens[++pos], this->tokens[pos]->type == Token::NAME && this->tokens[++pos]->lexem == "("){
 			// Now we will check for the argument's list.
 			Token *arg_type, *arg_name;
-			
+			bool is_array = false;
 			// Get function's arguments
 			while(true){
 				if(this->tokens[++pos]->lexem == ")" )
@@ -66,7 +67,17 @@ Function* Parser::checkFunction(int* position){
 									"Should be Name. Found: " + this->tokens[pos]->type_string()
 									+ " '" + this->tokens[pos]->lexem + "'");
 				}
-				args.push_back(new Argument(arg_type, arg_name));
+				if(this->tokens[++pos]->lexem == "["){
+					if(this->tokens[++pos]->lexem == "]"){
+						is_array = true;
+					} else {
+						throw new SyntaticException(this->tokens[pos],
+										"Expected ']', got: '" + this->tokens[pos]->lexem + "'");
+					}
+				} else {
+					pos--;
+				}
+				args.push_back(new Argument(arg_type, arg_name, is_array));
 				
 			}
 		}
@@ -84,8 +95,11 @@ Block* Parser::getBlock(int* position){
 						"Should be '{'. Found: '" + this->tokens[pos]->lexem + "'");
 	}
 	
+	pos++;
+	vector<Variable*> variables = getVariableDeclarations(&pos);
+	pos--;
 	while(this->tokens[++pos]->lexem != "}"){
-		
+		cout << "I Have: " << this->tokens[pos]->lexem << endl;
 	}
 	
 	++pos;
@@ -93,6 +107,87 @@ Block* Parser::getBlock(int* position){
 	
 	return NULL;
 }
+
+vector<Variable*> Parser::getVariableDeclarations(int* position) {
+	vector<Variable*> variables;
+	int pos = *position;
+	// full declaration: type name ...
+	while(true){
+		// partial declaration: name, name ...
+		Token* type = this->tokens[pos];
+		if(type->type != Token::TYPE){
+			break;
+		}
+		while(true){
+			Token* name;
+			int array_size = 0;
+			// variable has a name. OK for now...
+			if(this->tokens[++pos]->type == Token::NAME){
+				name = this->tokens[pos];
+				// it is an array. Now we can get it's size.
+				if(this->tokens[++pos]->lexem == "["){
+					// array size is a literal.
+					if(this->tokens[++pos]->type == Token::LITERAL){
+						try{
+							array_size = stoi(this->tokens[pos]->lexem);
+						} catch(exception& e){
+							throw new SyntaticException(this->tokens[pos],
+											"Unable to convert '" + this->tokens[pos]->lexem
+											+ "' to integer");
+						}
+						// this variable is ok.
+						if(this->tokens[++pos]->lexem == "]"){
+							variables.push_back(new Variable(type, name, array_size));
+						} else {
+							throw new SyntaticException(this->tokens[pos],
+											"Expected ']', got: " + this->tokens[pos]->lexem);
+						}
+						// it's an array of unknown size (bound to a variable, not a literal).
+					} else if(this->tokens[pos]->type == Token::NAME){
+						// this variable is ok.
+						if(this->tokens[++pos]->lexem == "]"){
+							variables.push_back(new Variable(type, name, -1));
+						} else {
+							throw new SyntaticException(this->tokens[pos],
+											"Expected ']', got: " + this->tokens[pos]->lexem);
+						}
+					} else {
+						throw new SyntaticException(this->tokens[pos],
+										"Expected Name or Literal, got: "
+										+ this->tokens[pos]->type_string());
+					}
+					// it's not an array
+				} else {
+					// will be initialized
+					if(this->tokens[pos]->lexem == "="){
+						// INCOMPLETE!!!
+					} else {
+						pos--;
+					}
+					variables.push_back(new Variable(type, name));
+				}
+				if(this->tokens[++pos]->lexem != ","){
+					pos--;
+					break;
+				}
+			} else {
+				throw new SyntaticException(this->tokens[pos],
+								"Expected Name. Found: " + this->tokens[pos]->type_string()
+								+ " '" + this->tokens[pos]->lexem + "'");
+			}
+		}
+		if(this->tokens[++pos]->lexem != ";"){
+			throw new SyntaticException(this->tokens[pos],
+							"Expected ';', got: " + this->tokens[pos]->lexem);
+		}
+		pos++;
+	}
+	
+	*position = pos;
+	
+	return variables;
+}
+
 
 Parser::~Parser() {
 }

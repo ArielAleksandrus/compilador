@@ -5,28 +5,26 @@
  */
 
 /* 
- * File:   Argument.h
+ * File:   Command.h
  * Author: aleksandrus
  *
- * Created on March 18, 2016, 8:36 PM
+ * Created on March 19, 2016, 2:32 AM
  */
 
-#ifndef ARGUMENT_H
-#define ARGUMENT_H
+#ifndef COMMAND_H
+#define COMMAND_H
 
+#include <vector>
 #include <string>
-
 #include "../Token.h"
 
-class Argument {
+class Command {
 public:
-	Argument(Token* tipo, Token* nome);
-	virtual ~Argument();
-	
-	Token* tipo;
-	Token* nome;
+	Command();
+	virtual ~Command();
 private:
+
 };
 
-#endif /* ARGUMENT_H */
+#endif /* COMMAND_H */
 

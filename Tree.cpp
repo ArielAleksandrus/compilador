@@ -31,7 +31,9 @@ void Tree::printFunctions(){
 						<< f->name->lexem << " (";
 		for(int j = 0; j < f->arguments.size(); j++){
 			Argument* a = f->arguments[j];
-			cout << a->tipo->lexem << " " << a->nome->lexem;
+			cout << a->type->lexem << " " << a->name->lexem;
+			if(a->is_array)
+				cout << "[]";
 			if(j != f->arguments.size() - 1)
 				cout << ", ";
 		}

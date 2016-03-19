@@ -14,12 +14,18 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
+#include <vector>
+#include <string>
+
+#include "Block.h"
+#include "Variable.h"
+
 class Block {
 public:
-	Block();
+	Block(std::vector<Variable*> variables);
 	virtual ~Block();
 private:
-
+	std::vector<Variable*> variables;
 };
 
 #endif /* BLOCK_H */
