@@ -12,6 +12,7 @@
  */
 
 #include "Token.h"
+#include "Unimplemented.h"
 
 using namespace std;
 
@@ -20,6 +21,26 @@ Token::Token(int line_number, int col_number, string lexem, int type){
 	this->col_number = col_number;
 	this->lexem = lexem;
 	this->type = type;
+}
+
+string Token::type_string(){
+	switch(this->type){
+		case Token::OPERATOR:
+			return "Operator";
+		case Token::OPERATOR2:
+			return "Double operator";
+		case Token::NAME:
+			return "Name";
+		case Token::LITERAL:
+			return "Literal";
+		case Token::TYPE:
+			return "Type";
+		case Token::COMMAND:
+			return "Command";
+		default:
+			throw new Unimplemented("Should implement string value for Token type: "
+							+ to_string(this->type));
+	}
 }
 
 Token::~Token() {

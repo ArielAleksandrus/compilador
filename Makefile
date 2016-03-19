@@ -1,8 +1,8 @@
 CC=g++
 CFLAGS=-I. -std=c++11
 DEBUGFLAGS=$(CFLAGS) -g
-SOURCE=FileReader.cpp Token.cpp
-MAIN=main.cpp $(SOURCE)
+SOURCE=*.cpp objects/*.cpp
+MAIN=$(SOURCE)
 TEST=test/test_$(FILE) $(SOURCE)
 BIN=bin/a.out
 

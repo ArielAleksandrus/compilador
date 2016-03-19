@@ -32,6 +32,7 @@ public:
 	 * @param type One of the constants declared in this class.
 	 */
 	Token(int line_number, int col_number, std::string lexem, int type);
+	std::string type_string();
 	virtual ~Token();
 	
 	

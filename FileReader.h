@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "Token.h"
+#include "SyntaticException.h"
 
 class FileReader {
 public:

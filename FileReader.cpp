@@ -12,6 +12,7 @@
  */
 
 #include <valarray>
+#include <stdexcept>
 
 #include "FileReader.h"
 
@@ -89,63 +90,46 @@ Token* FileReader::getWord(string line, int line_number, int* start /*= 0*/){
 }
 
 Token* FileReader::getString(string partial, int line_number, int i, int* start){
-	if(partial.at(i) != '\"'){
-		cout << "Error at FileReader::getString(string,int,int,int*)\n";
-		cout << "\tString does not begin with \" \" \" character" << endl;
-		exit(1);
-	}
 	string res = "\"";
 	for(int j = i+1; j < partial.length(); j++){
 		*start += 1;
-		if(partial.at(j) == '\n'){
-			cout << "Unterminated string at line " << line_number << ", col: " << *start << endl;
-			exit(1);
-		} else {
-			res += partial.at(j);
-		}
+		res += partial.at(j);
 		
 		if(res.at(j) == '\"'){
 			return new Token(line_number, *start - 1, res, Token::LITERAL);
 		}
 	}
+	
+	throw new SyntaticException(line_number, *start, "Unterminated string");
 }
 Token* FileReader::getCar(string partial, int line_number, int i, int* start) {
-	if(partial.at(i) != '\''){
-		cout << "Error at FileReader::getCar(string,int,int,int*)\n";
-		cout << "\tChar does not begin with \" \' \" character" << endl;
-		exit(1);
-	}
-	
 	string res = "\'";
 	*start += 1;
-	if(partial.at(i+1) == '\n'){
-		cout << "Unterminated character at line " << line_number << ", col: " << *start << endl;
-		exit(1);
-	}
-	if(partial.at(i+1) == '\\'){
+	try{
+		if(partial.at(i+1) == '\\'){
+			*start += 1;
+			res += partial.at(i+1);
+			if(partial.at(i+2) == '\''){
+				throw new SyntaticException(line_number, *start - 1, "Invalid character");
+			}
+			res += partial.at(i+2);
+			*start += 1;
+			if(partial.at(i+3) != '\''){
+				throw new SyntaticException(line_number, *start - 1, "Invalid character");
+			}
+			res += partial.at(i+3);
+			return new Token(line_number, *start - 1, res, Token::LITERAL);
+		}
 		*start += 1;
 		res += partial.at(i+1);
-		if(partial.at(i+2) == '\''){
-			cout << "Invalid character at line " << line_number << ", col: " << *start << endl;
-			exit(1);
+		*start += 1;
+		if(partial.at(i+2) != '\''){
+			throw new SyntaticException(line_number, *start - 1, "Invalid character");
 		}
 		res += partial.at(i+2);
-		*start += 1;
-		if(partial.at(i+3) != '\''){
-			cout << "Invalid character at line " << line_number << ", col: " << *start << endl;
-			exit(1);
-		}
-		res += partial.at(i+3);
-		return new Token(line_number, *start - 1, res, Token::LITERAL);
+	} catch(const out_of_range& e){
+		throw new SyntaticException(line_number, *start - 1, "Unfinished character declaration");
 	}
-	*start += 1;
-	res += partial.at(i+1);
-	*start += 1;
-	if(partial.at(i+2) != '\''){
-		cout << "Invalid character at line " << line_number << ", col: " << *start << endl;
-		exit(1);
-	}
-	res += partial.at(i+2);
 	return new Token(line_number, *start - 1, res, Token::LITERAL);
 }
 
@@ -163,9 +147,7 @@ Token* FileReader::getNumber(string partial, int line_number, int i, int* start)
 					return new Token(line_number, *start, res, Token::LITERAL);
 				}
 				if(partial.at(j) < '0' || partial.at(j) > '9'){
-					cout << "Invalid number with '" << partial.at(j) << "' at line "
-									<< line_number << ", col: " << *start << endl;
-					exit(1);
+					throw new SyntaticException(line_number, *start, "Invalid number");
 				} else {
 					res += partial.at(j);
 				}
@@ -179,8 +161,8 @@ Token* FileReader::getNumber(string partial, int line_number, int i, int* start)
 Token* FileReader::getOperator(string partial, int line_number, int i, int* start){
 	char first = partial.at(i);
 	if(!is_operator(first)){
-		cout << first << " is not an operator, at line: " << line_number << ", col: " << *start << endl;
-		exit(1);
+		throw new SyntaticException(line_number, *start,
+						"'" + string(1, first) + "' is not an operator.");
 	}
 	*start += 1;
 	if(partial.length() <= i+1){

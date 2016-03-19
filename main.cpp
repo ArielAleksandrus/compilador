@@ -15,6 +15,8 @@
 #include <cstdlib>
 
 #include "FileReader.h"
+#include "Parser.h"
+#include "Tree.h"
 
 using namespace std;
 
@@ -28,6 +30,10 @@ int main(int argc, char** argv) {
 	}
 	FileReader* fr = new FileReader(argv[1]);
 	fr->printTokens();
+	
+	Tree* t = new Tree();
+	Parser* p = new Parser(fr->getTokens(), t);
+	t->printFunctions();
 	return 0;
 }
 
