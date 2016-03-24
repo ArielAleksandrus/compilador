@@ -112,7 +112,7 @@ Token* FileReader::getString(string partial, int line_number, int i, int* start)
 		}
 	}
 	
-	throw new SyntaticException(line_number, *start, "Unterminated string");
+	throw new SyntaticException(line_number, *start, "Unfinished string");
 }
 Token* FileReader::getCar(string partial, int line_number, int i, int* start) {
 	string res = "\'";

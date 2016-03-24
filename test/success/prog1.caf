@@ -1,6 +1,0 @@
-programa{
-	int a1 = 3;
-	int a2[a1];
-
-	a2[0] = -1;
-}
