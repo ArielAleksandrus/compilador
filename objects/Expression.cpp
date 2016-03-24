@@ -52,7 +52,7 @@ Expression::Expression(Expression* lval, Token* ter_op1, Expression* rval1,
 }
 
 void Expression::printExpression(){
-	cout << "+++++ EXPRESSION ++++++" << endl << endl;
+	cout << "\n+++++ EXPRESSION ++++++" << endl << endl;
 	if(literal != NULL){
 		cout << "+++++ LITERAL ++++++" << endl;
 		literal->printToken();
@@ -68,6 +68,7 @@ void Expression::printExpression(){
 	}
 	if(unary_op != NULL){
 		cout << "+++++ UNARY OPERATOR ++++++" << endl;
+		unary_op->printToken();
 		cout << "----- UNARY OPERATOR ------" << endl;
 	}
 	if(lval != NULL){

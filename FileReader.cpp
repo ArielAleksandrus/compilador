@@ -76,8 +76,10 @@ Token* FileReader::getWord(string line, int line_number, int* start /*= 0*/){
 				return getOperator(partial, line_number, i, start);
 		}
 		
-		if(is_character(c) || is_number(c) || c == '_')
+		if(is_character(c) || is_number(c) || c == '_'){
 			word += c;
+			continue;
+		}
 		if(is_operator(c) && !word.empty()){
 			*start -= 1;
 			return new Token(line_number, *start, word, keyword(word));
@@ -93,9 +95,10 @@ Token* FileReader::getWord(string line, int line_number, int* start /*= 0*/){
 				return NULL;
 			return new Token(line_number, *start, word, keyword(word));
 		}
+		
+		throw new SyntaticException(line_number, *start,
+						string("Unexpected symbol '") + string(1, c) + string("'"));
 	}
-	
-	return NULL;
 }
 
 Token* FileReader::getString(string partial, int line_number, int i, int* start){

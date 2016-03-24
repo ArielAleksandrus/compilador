@@ -127,11 +127,7 @@ vector<Variable*> Parser::getVariableDeclarations(int* position) {
 			}
 			int unused = 0;
 			Variable* var = getVariable(var_tokens, &unused);
-			cout << "AEHOEEEEEEEEEEEE" << endl << endl << endl;
-			for(int i = 0; i < var_tokens.size(); i++){
-				var_tokens[i]->printToken();
-			}
-			cout << "AEHOE222222222222" << endl << endl << endl;
+			
 			var_tokens.clear();
 			
 			if(var == NULL)
@@ -166,7 +162,7 @@ Variable* Parser::getVariable(vector<Token*> tokens, int* pos){
 	// 4- assignment of an array variable: a[0] = 3
 	if(tokens[jmp]->type == Token::NAME){
 		name = tokens[jmp];
-		if(tokens.size() > 1){
+		if(jmp + 1 < tokens.size()){
 			// is array.
 			if(tokens[++jmp]->lexem == "["){
 				is_array = true;
@@ -203,25 +199,23 @@ Variable* Parser::getVariable(vector<Token*> tokens, int* pos){
 				jmp++;
 			}
 			
-			
-			
-			*pos += jmp;
+			*pos = jmp;
 			return new Variable(name, is_array, value);
 		} else {
 			*pos += 1;
-			return new Variable(tokens[0]);
+			return new Variable(tokens[jmp]);
 		}
 		
 		// is declaration
 	} else if(tokens[jmp]->type == Token::TYPE){
 		type = tokens[jmp];
-		if(tokens.size() > 1){
+		if(jmp + 1 < tokens.size()){
 			if(tokens[++jmp]->type != Token::NAME)
 				throw new SyntaticException(tokens[jmp], "Expected name of variable, got: "
 								+ tokens[jmp]->type_string());
 			name = tokens[jmp];
 			
-			if(tokens.size() > 2){
+			if(jmp + 2 < tokens.size()){
 				// is array.
 				if(tokens[++jmp]->lexem == "["){
 					while(tokens[++jmp]->lexem != "]"){
@@ -297,32 +291,25 @@ Expression* Parser::resolve(vector<Token*> tokens){
 	vector<ExprOrOpToken*> eot;
 	Variable* v;
 	FuncCall* fc;
-	cout << "BUGABUGABUGA\n\n\n";
-	for(int i = 0; i < tokens.size(); i++){
-		tokens[i]->printToken();
-	}
-	cout << "YEYEYEYEYEYE\n\n\n";
+	
 	int i = 0;
 	while(i < tokens.size()){
 		ExprOrOpToken* node = (ExprOrOpToken*) malloc(sizeof(ExprOrOpToken));
 		node->expr = NULL;
 		node->op = NULL;
-		cout << "I EH: " << i << " / " << tokens[i]->lexem << " / " << tokens[i]->type_string() << endl;
-		if(v = getVariable(tokens, &i)){
-			cout << "EH VARIAVEEEEEEEEEEEL: " << v->name->lexem << endl;
-			cout << "I AGORA EH: " << i << " / " << tokens[i]->lexem << " / " << tokens[i]->type_string() << endl;
-			node->expr = new Expression(v);
-		} else if(fc = getFuncCall(tokens, &i)){
-			cout << "EH FUNC CAAAAAALL: " << fc->func_name->lexem << endl;
-			node->expr = new Expression(fc);
-		} else if(tokens[i]->type == Token::LITERAL){
-			cout << "EH LITERAAAAAAAAAAL: " << tokens[i]->lexem << endl;
-			node->expr = new Expression(tokens[i]);
-			i++;
-		} else if(tokens[i]->type == Token::OPERATOR || Token::OPERATOR2){
-			cout << "EH OPERADOOOOOOOOR: " << tokens[i]->lexem << endl;
+		
+		if(tokens[i]->type == Token::OPERATOR || tokens[i]->type == Token::OPERATOR2){
 			node->op = tokens[i];
 			i++;
+		} else if(fc = getFuncCall(tokens, &i)){
+			node->expr = new Expression(fc);
+			fc = NULL;
+		} else if(tokens[i]->type == Token::LITERAL){
+			node->expr = new Expression(tokens[i]);
+			i++;
+		} else if(v = getVariable(tokens, &i)){
+			node->expr = new Expression(v);
+			v = NULL;
 		} else {
 			throw new SyntaticException(tokens[i],
 							string("Expected expression or operator, got ")
@@ -333,12 +320,8 @@ Expression* Parser::resolve(vector<Token*> tokens){
 	}
 	for(int i = 0; i < eot.size(); i++){
 		if(eot[i]->expr != NULL){
-			cout<< "YAYAOOOO" << endl;
 			eot[i]->expr->printExpression();
-			
-			cout<< "YAYAOO22222222" << endl;
-		}
-		else
+		} else
 			eot[i]->op->printToken();
 	}
 	Expression* res = resolve(eot);
@@ -348,13 +331,16 @@ Expression* Parser::resolve(vector<Token*> tokens){
 }
 Expression* Parser::resolve(vector<ExprOrOpToken*> eot){
 	vector<ExprOrOpToken*> new_eot, in_parenthesis;
+	vector<ExprOrOpToken*> lval_eot, rval_eot;
+	vector<ExprOrOpToken*> rval1_eot, rval2_eot;
 	int open_parenthesis_index;
 	
 	if(eot.size() == 1){
 		if(eot[0]->expr != NULL)
 			return eot[0]->expr;
 		else
-			throw new SyntaticException(eot[0]->op, "Invalid expression");
+			throw new SyntaticException(eot[0]->op, string("Invalid expression '")
+							+ string(eot[0]->op->lexem) + string("'"));
 	}
 	
 	////////////////////////// resolve parenthesis ///////////////////////////////
@@ -389,7 +375,7 @@ Expression* Parser::resolve(vector<ExprOrOpToken*> eot){
 			if(i + 1 < eot.size()){
 				if(eot[i + 1]->expr != NULL){
 					Expression* e = new Expression(un_ops[un_ops.size()-1], eot[i+1]->expr);
-					for(int j = un_ops.size() - 2; j >= 0; j++)
+					for(int j = un_ops.size() - 2; j >= 0; j--)
 						e = new Expression(un_ops[j], e);
 					
 					ExprOrOpToken* new_eoot = (ExprOrOpToken*) malloc(sizeof(ExprOrOpToken));
@@ -397,6 +383,7 @@ Expression* Parser::resolve(vector<ExprOrOpToken*> eot){
 					new_eoot->expr = e;
 					new_eot.push_back(new_eoot);
 					un_ops.clear();
+					i++;
 				}
 			} else {
 				throw new SyntaticException(eot[i]->op,
@@ -417,11 +404,37 @@ Expression* Parser::resolve(vector<ExprOrOpToken*> eot){
 	new_eot.clear();
 	//////////////////////////////////////////////////////////////////////////////
 	
+	//////////////////////// resolve ternary ops /////////////////////////////////
+	Token *t_op1, *t_op2;
+	for(int i = 0; i < eot.size(); i++){
+		if(eot[i]->op != NULL && eot[i]->op->lexem == "?"){
+			t_op1 = eot[i]->op;
+			for(int j = 0; j < i; j++)
+				lval_eot.push_back(eot[j]);
+			
+			Expression* lval = resolve(lval_eot);
+			
+			for(int j = i + 1; j < eot.size(); j++){
+				if(eot[j]->op != NULL && eot[j]->op->lexem == ":"){
+					t_op2 = eot[j]->op;
+					for(int k = i + 1; k < j; k++)
+						rval1_eot.push_back(eot[k]);
+					
+					for(int k = j + 1; k < eot.size(); k++)
+						rval2_eot.push_back(eot[k]);
+					
+					Expression* rval1 = resolve(rval1_eot);
+					Expression* rval2 = resolve(rval2_eot);
+					return new Expression(lval, t_op1, rval1, t_op2, rval2);
+				}
+			}
+		}
+	}
+	//////////////////////////////////////////////////////////////////////////////
 	
 	/////////////////// resolve high priority dual ops ///////////////////////////
 	//resolve comparison ops: >=, <=, >, <, !=, ==
 	vector<string> ops = {">=", "<=", ">", "<", "!=", "=="};
-	vector<ExprOrOpToken*> lval_eot, rval_eot;
 	for(int i = 0; i < eot.size(); i++){
 		if(eot[i]->op != NULL && find(ops.begin(), ops.end(), eot[i]->op->lexem)
 						!= ops.end()){
@@ -491,35 +504,6 @@ Expression* Parser::resolve(vector<ExprOrOpToken*> eot){
 			Expression* lval = resolve(lval_eot);
 			Expression* rval = resolve(rval_eot);
 			return new Expression(lval, eot[i]->op, rval);
-		}
-	}
-	//////////////////////////////////////////////////////////////////////////////
-	
-	//////////////////////// resolve ternary ops /////////////////////////////////
-	vector<ExprOrOpToken*> rval1_eot, rval2_eot;
-	Token *t_op1, *t_op2;
-	for(int i = 0; i < eot.size(); i++){
-		if(eot[i]->op != NULL && eot[i]->op->lexem == "?"){
-			t_op1 = eot[i]->op;
-			for(int j = 0; j < i; j++)
-				lval_eot.push_back(eot[i]);
-			
-			Expression* lval = resolve(lval_eot);
-			
-			for(int j = i + 1; j < eot.size(); j++){
-				if(eot[j]->op != NULL && eot[j]->op->lexem == ":"){
-					t_op2 = eot[j]->op;
-					for(int k = i + 1; k < j; k++)
-						rval1_eot.push_back(eot[k]);
-					
-					for(int k = j + 1; k < eot.size(); k++)
-						rval2_eot.push_back(eot[k]);
-					
-					Expression* rval1 = resolve(rval1_eot);
-					Expression* rval2 = resolve(rval2_eot);
-					return new Expression(lval, t_op1, rval1, t_op2, rval2);
-				}
-			}
 		}
 	}
 	//////////////////////////////////////////////////////////////////////////////

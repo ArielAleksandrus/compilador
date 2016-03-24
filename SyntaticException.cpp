@@ -16,7 +16,7 @@
 using namespace std;
 
 SyntaticException::SyntaticException(Expression* expr, string msg) {
-	while(expr->literal == NULL || expr->variable != NULL || expr->call != NULL){
+	while(expr->literal == NULL && expr->variable == NULL && expr->call == NULL){
 		expr = expr->lval;
 	}
 	Token* token;
