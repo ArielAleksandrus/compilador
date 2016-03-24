@@ -23,11 +23,11 @@
 
 class Function {
 public:
-	Function(Token* type, Token* name, Block* block, std::vector<Argument*> arguments);
+	Function(Token* type, Token* name, Block* block, std::vector<Parameter*> arguments);
 	virtual ~Function();
 	
 	Token *type, *name;
-	std::vector<Argument*> arguments;
+	std::vector<Parameter*> arguments;
 private:
 
 };

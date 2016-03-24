@@ -17,7 +17,6 @@
 #include <vector>
 #include <string>
 
-#include "Block.h"
 #include "Variable.h"
 
 class Block {

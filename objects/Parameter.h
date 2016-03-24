@@ -18,10 +18,10 @@
 
 #include "../Token.h"
 
-class Argument {
+class Parameter {
 public:
-	Argument(Token* type, Token* name, bool is_array = false);
-	virtual ~Argument();
+	Parameter(Token* type, Token* name, bool is_array = false);
+	virtual ~Parameter();
 	
 	Token *type, *name;
 	bool is_array;

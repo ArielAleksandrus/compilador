@@ -30,7 +30,7 @@ void Tree::printFunctions(){
 		cout << "\tFunction " << i+1 << ": " << f->type->lexem << " "
 						<< f->name->lexem << " (";
 		for(int j = 0; j < f->arguments.size(); j++){
-			Argument* a = f->arguments[j];
+			Parameter* a = f->arguments[j];
 			cout << a->type->lexem << " " << a->name->lexem;
 			if(a->is_array)
 				cout << "[]";

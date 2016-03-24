@@ -11,24 +11,26 @@
  * Created on March 18, 2016, 11:41 AM
  */
 
+#include <map>
+
 #include "Token.h"
-#include "Unimplemented.h"
 
 using namespace std;
 
-Token::Token(int line_number, int col_number, string lexem, int type){
+Token::Token(int line_number, int col_number, string lexem, int type,
+				int operator_type /* = 0 */){
 	this->line_number = line_number;
 	this->col_number = col_number;
 	this->lexem = lexem;
 	this->type = type;
+	this->operator_type = operator_type;
 }
 
 string Token::type_string(){
 	switch(this->type){
 		case Token::OPERATOR:
-			return "Operator";
 		case Token::OPERATOR2:
-			return "Double operator";
+			return "Operator";
 		case Token::NAME:
 			return "Name";
 		case Token::LITERAL:
@@ -41,6 +43,66 @@ string Token::type_string(){
 			throw new Unimplemented("Should implement string value for Token type: "
 							+ to_string(this->type));
 	}
+}
+
+string Token::operator_type_string(){
+	switch(this->operator_type){
+		case 0:
+			return "Undefined type";
+		case Token::UNARY_OPERATOR:
+			return "Unary operator";
+		case Token::DUAL_OPERATOR:
+			return "Dual operator";
+		case Token::TERN_OPERATOR:
+			return "Ternary operator";
+		default:
+			throw new Unimplemented(
+							"Should implement string value for Token operator type: "
+							+ to_string(this->operator_type));
+	}
+}
+
+bool Token::is_op_type(int type){
+	if(this->type != Token::OPERATOR && this->type != Token::OPERATOR2)
+		return 0;
+	
+	FileReader* fr = new FileReader();
+	if(type == Token::UNARY_OPERATOR){
+		for(int i = 0; i < fr->unary_operators.size(); i++){
+			if(fr->unary_operators[i] == this->lexem){
+				delete fr;
+				return true;
+			}
+		}
+	} else if(type == Token::DUAL_OPERATOR){
+		for(int i = 0; i < fr->dual_operators.size(); i++){
+			if(fr->dual_operators[i] == this->lexem){
+				delete fr;
+				return true;
+			}
+		}
+	} else if(type == Token::TERN_OPERATOR){
+		for(int i = 0; i < fr->ternary_operators.size(); i++){
+			if(fr->ternary_operators[i] == this->lexem){
+				delete fr;
+				return true;
+			}
+		}
+	} else {
+		delete fr;
+		return true;
+	}
+	
+	delete fr;
+	return false;
+}
+
+void Token::printToken(){
+	cout << "Token:"
+					<< "\n\tType: " << this->type_string()
+					<< "\n\tLine/Col: " << this->line_number << ", " << this->col_number
+					<< "\n\tLexem: " << this->lexem
+					<< endl;
 }
 
 Token::~Token() {

@@ -1,0 +1,5 @@
+int soma_arr(int nums[], int size){
+    int aux[(size + -2)/3];
+    retorne 0;
+}
+programa{}

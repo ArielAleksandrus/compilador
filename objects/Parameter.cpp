@@ -15,12 +15,12 @@
 
 using namespace std;
 
-Argument::Argument(Token* type, Token* name, bool is_array /* = false */) {
+Parameter::Parameter(Token* type, Token* name, bool is_array /* = false */) {
 	this->type = type;
 	this->name = name;
 	this->is_array = is_array;
 }
 
-Argument::~Argument() {
+Parameter::~Parameter() {
 }
 

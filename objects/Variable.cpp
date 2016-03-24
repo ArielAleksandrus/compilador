@@ -15,23 +15,53 @@
 
 using namespace std;
 
-Variable::Variable(Token* type, Token* name, int arr_size /* = 0 */,
-				Token* value /* = NULL */) {
+Variable::Variable(Token* name, bool is_array /* = false */,
+				Expression* expr /* = NULL */, Expression* expr2 /* = NULL */){
+	this->name = name;
+	if(is_array)
+		this->arr_size = expr;
+	else
+		this->value = expr;
+}
+
+Variable::Variable(Token* type, Token* name, bool is_array /* = false */,
+				Expression* expr /* = NULL */){
 	this->type = type;
 	this->name = name;
-	this->arr_size = arr_size;
-	this->value = value;
 	
-	if(type->lexem == "int")
-		this->var_size = 4;
-	else if(type->lexem == "car")
-		this->var_size = 1;
-	else
-		throw new Unimplemented("Should implement var size for: " + type->lexem);
-	
-	this->var_size = arr_size == 0 ? this->var_size : this->var_size * arr_size;
+	if(is_array){
+		if(expr != NULL)
+			this->arr_size = expr;
+		else 
+			throw new SyntaticException(type, "Invalid use of Variable constructor");
+	} else {
+		this->value = expr;
+	}
 }
 
 Variable::~Variable() {
+	
 }
 
+void Variable::printVariable(){
+	cout << "+++++++ VARIABLE +++++++" << endl;
+	if(type != NULL)
+		cout << "Type: " + type->lexem << endl;
+	cout << "Name: " + name->lexem << endl << endl;
+	if(arr_size != NULL){
+		cout << "+++++ ARR SIZE +++++" << endl;
+		arr_size->printExpression();
+		cout << "----- ARR SIZE -----" << endl;
+	}
+	if(arr_pos != NULL){
+		cout << "+++++ ARR POS +++++" << endl;
+		arr_pos->printExpression();
+		cout << "----- ARR POS -----" << endl;
+	}
+	if(value != NULL){
+		cout << "+++++ VALUE +++++" << endl;
+		value->printExpression();
+		cout << "----- VALUE -----" << endl;
+	}
+	cout << "------- VARIABLE -------" << endl;
+}

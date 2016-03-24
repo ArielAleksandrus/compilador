@@ -20,8 +20,20 @@
 #include "objects/Function.h"
 #include "objects/Parameter.h"
 #include "objects/Block.h"
-#include "Token.h"
+#include "objects/Variable.h"
+#include "objects/Command.h"
+#include "objects/Expression.h"
+#include "objects/FuncCall.h"
+#include "SyntaticException.h"
+
 #include "Tree.h"
+#include "Token.h"
+
+
+typedef struct ExprOrOpToken{
+	Expression* expr;
+	Token* op;
+}ExprOrOpToken;
 
 class Parser {
 public:
@@ -31,6 +43,12 @@ private:
 	std::vector<Token*> tokens;
 	Function* checkFunction(int* position);
 	Block* getBlock(int* position);
+	
+	Expression* resolve(std::vector<Token*> tokens);
+	Expression* resolve(std::vector<ExprOrOpToken*> expr_tokens);
+	
+	Variable* getVariable(std::vector<Token*> tokens, int* pos);
+	FuncCall* getFuncCall(std::vector<Token*> tokens, int* pos);
 	std::vector<Variable*> getVariableDeclarations(int* position);
 };
 

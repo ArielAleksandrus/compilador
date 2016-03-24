@@ -11,13 +11,14 @@
  * Created on March 18, 2016, 11:07 AM
  */
 
-#include <valarray>
-#include <stdexcept>
 
 #include "FileReader.h"
 
 using namespace std;
 
+FileReader::FileReader(){
+	
+}
 FileReader::FileReader(string path) {
 	this->source.open(path.c_str());
 	if(!source.is_open()){
@@ -39,6 +40,14 @@ void FileReader::genTokens(){
 				this->tokens.push_back(t);
 		}
 	}
+}
+void FileReader::genTokens(string path){
+	this->source.open(path.c_str());
+	if(!source.is_open()){
+		cout << "File '" + path + "' not found" << endl;
+		exit(1);
+	}
+	genTokens();
 }
 
 Token* FileReader::getWord(string line, int line_number, int* start /*= 0*/){
@@ -67,7 +76,7 @@ Token* FileReader::getWord(string line, int line_number, int* start /*= 0*/){
 				return getOperator(partial, line_number, i, start);
 		}
 		
-		if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+		if(is_character(c) || is_number(c) || c == '_')
 			word += c;
 		if(is_operator(c) && !word.empty()){
 			*start -= 1;
@@ -200,6 +209,15 @@ int FileReader::keyword(string word){
 		if(*it == word)
 			return Token::COMMAND;
 	}
+	for(int i = 0; i < this->operators.size(); i++){
+		string op = string(1, this->operators[i]);
+		if(op == word)
+			return Token::OPERATOR;
+	}
+	for(int i = 0; i < this->operators2.size(); i++){
+		if(this->operators2[i] == word)
+			return Token::OPERATOR2;
+	}
 	return Token::NAME;
 }
 
@@ -207,10 +225,24 @@ bool FileReader::is_operator(char c){
 	for(vector<char>::iterator it = this->operators.begin();
 					it != this->operators.end();
 					it++){
-		if(*it == c)
+		if(*it == c && !is_character(c))
 			return true;
 	}
 	return false;
+}
+
+bool FileReader::is_operator(string s){
+	for(int i = 0; i < this->operators2.size(); i++){
+		if(s == this->operators2[i])
+			return true;
+	}
+}
+
+bool FileReader::is_character(char c){
+	return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+}
+bool FileReader::is_number(char c){
+	return (c >= '0' && c <= '9');
 }
 
 vector<Token*> FileReader::getTokens(){
@@ -229,6 +261,7 @@ void FileReader::printTokens(){
 					it++){
 		Token* t = *it;
 		cout << "Token " << ++i << ": (" << t->line_number << ", " 
-						<< t->col_number << ", " << t->lexem << ", " << t->type << ")" << endl;
+						<< t->col_number << ", " << t->lexem << ", " << t->type_string()
+						<< ")" << endl;
 	}
 }

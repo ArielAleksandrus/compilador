@@ -18,12 +18,18 @@
 #include <string>
 
 #include "Token.h"
+#include "objects/Expression.h"
+
+class Expression;
+class Token;
 
 class SyntaticException : public std::exception{
 public:
+	SyntaticException(Expression* expr, std::string msg);
 	SyntaticException(Token* token, std::string msg);
 	SyntaticException(int line_number, int col_number, std::string msg,
 					bool terminate = true);
+	SyntaticException(int line_number, std::string msg, bool terminate = true);
 	virtual ~SyntaticException();
 private:
 

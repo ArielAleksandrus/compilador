@@ -15,7 +15,7 @@
 
 using namespace std;
 
-Function::Function(Token* type, Token* name, Block* block, vector<Argument*> arguments) {
+Function::Function(Token* type, Token* name, Block* block, vector<Parameter*> arguments) {
 	this->type = type;
 	this->name = name;
 	this->arguments = arguments;

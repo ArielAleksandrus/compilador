@@ -18,9 +18,13 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <valarray>
+#include <stdexcept>
 
 #include "Token.h"
 #include "SyntaticException.h"
+
+class Token;
 
 class FileReader {
 public:
@@ -29,14 +33,52 @@ public:
 	 * 
 	 * 	@param path Path to the source code to be compiled.
 	 */
+	FileReader();
 	FileReader(std::string path);
+	void genTokens();
+	void genTokens(std::string path);
 	std::vector<Token*> getTokens();
 	void printTokens();
 	virtual ~FileReader();
 	
+	// single char operators.
+	std::vector<char> operators = {
+		'(', ')', '[', ']', '{', '}',
+		'+', '-', '*', '/',
+		'=', '!',
+		',', ';', '?', ':',
+		'>', '<',
+		'e'
+	};
+	// operators with 2 or more characters.
+	std::vector<std::string> operators2 = {
+		"==", "<=", ">=", "!=",
+		"&&", "||", "nao", "ou"
+	};
+	std::vector<std::string> unary_operators = {
+		"not", "!", "-"
+	};
+	std::vector<std::string> dual_operators = {
+		"e", "ou", "&&", "||",
+		">", "<", ">=", "<=", "==", "!=",
+		"%", "+", "-", "*", "/"
+	};
+	std::vector<std::string> ternary_operators = {
+		"?", ":"
+	};
+	std::vector<std::string> commands = {
+		"programa",
+		"retorne",
+		"se",
+		"enquanto"
+	};
+	std::vector<std::string> types = {
+		"int",
+		"car"
+	};
+	
 private:
 	
-	void genTokens();
 	
 	Token* getWord(std::string line, int line_number, int* start);
 	Token* getString(std::string partial, int line_number, int i, int* start);
@@ -54,31 +96,13 @@ private:
 	int keyword(std::string word);
 	
 	bool is_operator(char c);
+	bool is_operator(std::string s);
+	
+	bool is_character(char c);
+	bool is_number(char c);
 	
 	std::vector<Token*> tokens;
 	std::ifstream source;
-	
-	std::vector<char> operators = {
-		'(', ')', '[', ']', '{', '}',
-		'+', '-', '*', '/',
-		'=', '!',
-		',', ';', '?', ':',
-		'>', '<'
-	};
-	std::vector<std::string> operators2 = {
-		"==", "<=", ">=", "!=",
-		"&&", "||"
-	};
-	std::vector<std::string> commands = {
-		"programa",
-		"retorne",
-		"se",
-		"enquanto"
-	};
-	std::vector<std::string> types = {
-		"int",
-		"car"
-	};
 };
 
 #endif /* FILEREADER_H */
