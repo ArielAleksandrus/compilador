@@ -176,26 +176,25 @@ Token* FileReader::getOperator(string partial, int line_number, int i, int* star
 		throw new SyntaticException(line_number, *start,
 						"'" + string(1, first) + "' is not an operator.");
 	}
-	*start += 1;
-	if(partial.length() <= i+1){
-		*start -= 1;
-		return new Token(line_number, *start, string(1, first), Token::OPERATOR);
-	}
-	char second = partial.at(i+1);
-	if(is_operator(second)){
-		string operator2 = string({first, second, '\0'});
-		for(vector<string>::iterator it = this->operators2.begin();
-						it < this->operators2.end();
-						it++){
-			if(*it == operator2){
-				return new Token(line_number, *start, operator2, Token::OPERATOR2);
-			}
+	string res = "";
+	res += first;
+	
+	while(true){
+		*start += 1;
+		if(i + 1 >= partial.length()){
+			*start -= 1;
+			return new Token(line_number, *start, res,
+							res.length() == 1 ? Token::OPERATOR : Token::OPERATOR2);
 		}
-		*start -= 1;
-		return new Token(line_number, *start, string(1, first), Token::OPERATOR);
-	} else {
-		*start -= 1;
-		return new Token(line_number, *start, string(1, first), Token::OPERATOR);
+		
+		res += partial.at(++i);
+		
+		if(!is_operator(res)){
+			res.pop_back();
+			*start -= 1;
+			return new Token(line_number, *start, res,
+							res.length() == 1 ? Token::OPERATOR : Token::OPERATOR2);
+		}
 	}
 }
 

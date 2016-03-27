@@ -64,6 +64,9 @@ Function* Parser::checkFunction(int* position){
 									+ " '" + this->tokens[pos]->lexem + "'");
 				}
 				if(this->tokens[++pos]->lexem == "["){
+					if(pos + 1 >= this->tokens.size())
+						throw new SyntaticException(this->tokens[pos],
+										"Symbol ']' not found");
 					if(this->tokens[++pos]->lexem == "]"){
 						is_array = true;
 					} else {
@@ -93,9 +96,11 @@ Block* Parser::getBlock(int* position){
 	
 	pos++;
 	vector<Variable*> variables = getVariableDeclarations(&pos);
+	cout << "XXXXXXXXX PRINTING VARIABLE XXXXXXXXXXXXX" << endl;
 	for(int i = 0; i < variables.size(); i++){
 		variables[i]->printVariable();
 	}
+	cout << "YYYYYYYYYYYYYY PRINTING VARIABLE YYYYYYYYYY" << endl;
 	pos--;
 	while(this->tokens[++pos]->lexem != "}"){
 		cout << "I Have: " << this->tokens[pos]->lexem << endl;
@@ -123,9 +128,17 @@ vector<Variable*> Parser::getVariableDeclarations(int* position) {
 			var_tokens.push_back(type);
 			while(lex != "," && lex != ";"){
 				var_tokens.push_back(this->tokens[pos]);
+				if(pos + 1 >= this->tokens.size())
+					throw new SyntaticException(this->tokens[pos],
+									"Unexpected end of variable declaration");
 				lex = this->tokens[++pos]->lexem;
 			}
 			int unused = 0;
+			cout << "\n\nxxxxxxxxxxx VARIABLE TOKENS xxxxxxxxxxx\n\n";
+			for(int i = 0; i < var_tokens.size(); i++){
+				var_tokens[i]->printToken();
+			}
+			cout << "\nyyyyyyyyyyyyy VARIABLE TOKENS yyyyyyyyyyyy\n\n";
 			Variable* var = getVariable(var_tokens, &unused);
 			
 			var_tokens.clear();
@@ -140,7 +153,11 @@ vector<Variable*> Parser::getVariableDeclarations(int* position) {
 			}
 		}
 	}
-	
+	for(int i = 0; i < variables.size(); i++){
+		cout << "Variable " << i+1 << ":" << endl;
+		variables[i]->printVariable();
+		cout << "\n-----------------------------\n";
+	}
 	*position = pos;
 	
 	return variables;
@@ -318,18 +335,15 @@ Expression* Parser::resolve(vector<Token*> tokens){
 		}
 		eot.push_back(node);
 	}
-	for(int i = 0; i < eot.size(); i++){
-		if(eot[i]->expr != NULL){
-			eot[i]->expr->printExpression();
-		} else
-			eot[i]->op->printToken();
-	}
+	
 	Expression* res = resolve(eot);
 	for(int i = 0; i < eot.size(); i++)
 		free(eot[i]);
 	return res;
 }
 Expression* Parser::resolve(vector<ExprOrOpToken*> eot){
+	if(eot.size() == 0)
+		return NULL;
 	vector<ExprOrOpToken*> new_eot, in_parenthesis;
 	vector<ExprOrOpToken*> lval_eot, rval_eot;
 	vector<ExprOrOpToken*> rval1_eot, rval2_eot;
@@ -357,8 +371,9 @@ Expression* Parser::resolve(vector<ExprOrOpToken*> eot){
 			new_eoot->op = NULL;
 			new_eoot->expr = resolve(in_parenthesis);
 			new_eot.push_back(new_eoot);
+		} else {
+			new_eot.push_back(eot[i]);
 		}
-		new_eot.push_back(eot[i]);
 	}
 	eot.clear();
 	eot = new_eot;
@@ -476,15 +491,19 @@ Expression* Parser::resolve(vector<ExprOrOpToken*> eot){
 	for(int i = 0; i < eot.size(); i++){
 		if(eot[i]->op != NULL && find(ops.begin(), ops.end(), eot[i]->op->lexem)
 						!= ops.end()){
-			for(int j = 0; j < i; j++)
-				lval_eot.push_back(eot[j]);
+			if(i + 1 >= eot.size())
+				throw new SyntaticException(eot[i]->op, "RVal not found");
 			
-			for(int j = i + 1; j < eot.size(); j++)
-				rval_eot.push_back(eot[j]);
-			
-			Expression* lval = resolve(lval_eot);
-			Expression* rval = resolve(rval_eot);
-			return new Expression(lval, eot[i]->op, rval);
+			Expression *lval = eot[i - 1]->expr, *rval = eot[i + 1]->expr;
+			if(lval == NULL || rval == NULL)
+				throw new SyntaticException(eot[i]->op, "Not a valid expression");
+			ExprOrOpToken* eoot = (ExprOrOpToken*) malloc(sizeof(ExprOrOpToken));
+			eoot->op = NULL;
+			eoot->expr = new Expression(lval, eot[i]->op, rval);
+			// remove at pos i-1, i and i + 1
+			eot.erase(eot.begin() + i - 1, eot.begin() + i + 2);
+			eot.insert(eot.begin() + i - 1, eoot);
+			i--;
 		}
 	}
 	//////////////////////////////////////////////////////////////////////////////
