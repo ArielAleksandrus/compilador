@@ -133,13 +133,17 @@ vector<Variable*> Parser::getVariableDeclarations(int* position) {
 									"Unexpected end of variable declaration");
 				lex = this->tokens[++pos]->lexem;
 			}
-			int unused = 0;
+			int pos = 0;
 			cout << "\n\nxxxxxxxxxxx VARIABLE TOKENS xxxxxxxxxxx\n\n";
 			for(int i = 0; i < var_tokens.size(); i++){
 				var_tokens[i]->printToken();
 			}
 			cout << "\nyyyyyyyyyyyyy VARIABLE TOKENS yyyyyyyyyyyy\n\n";
-			Variable* var = getVariable(var_tokens, &unused);
+			Variable* var = getVariable(var_tokens, &pos);
+			
+			if(pos != var_tokens.size())
+				throw new SyntaticException(var_tokens[var_tokens.size() - 1],
+								"Invalid variable declaration");
 			
 			var_tokens.clear();
 			
@@ -250,7 +254,8 @@ Variable* Parser::getVariable(vector<Token*> tokens, int* pos){
 					*pos += jmp + 1;
 					return new Variable(type, name, true, arr_size);
 					// is assignment.
-				} else if(tokens[jmp]->lexem == "="){
+				}
+				if(tokens[jmp]->lexem == "="){
 					while(++jmp < tokens.size() && tokens[jmp]->lexem != ";")
 						value_tokens.push_back(tokens[jmp]);
 					
@@ -440,9 +445,12 @@ Expression* Parser::resolve(vector<ExprOrOpToken*> eot){
 					
 					Expression* rval1 = resolve(rval1_eot);
 					Expression* rval2 = resolve(rval2_eot);
+					if(lval == NULL || rval1 == NULL || rval2 == NULL)
+						throw new SyntaticException(eot[i]->op, "Not a valid expression");
 					return new Expression(lval, t_op1, rval1, t_op2, rval2);
 				}
 			}
+			throw new SyntaticException(eot[i]->op, "Second ternary op not found");
 		}
 	}
 	//////////////////////////////////////////////////////////////////////////////
@@ -522,6 +530,8 @@ Expression* Parser::resolve(vector<ExprOrOpToken*> eot){
 			
 			Expression* lval = resolve(lval_eot);
 			Expression* rval = resolve(rval_eot);
+			if(lval == NULL || rval == NULL)
+				throw new SyntaticException(eot[i]->op, "Not a valid expression");
 			return new Expression(lval, eot[i]->op, rval);
 		}
 	}
