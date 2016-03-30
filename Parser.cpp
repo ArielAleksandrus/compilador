@@ -96,14 +96,14 @@ Block* Parser::getBlock(int* position){
 	
 	pos++;
 	vector<Variable*> variables = getVariableDeclarations(&pos);
-	cout << "XXXXXXXXX PRINTING VARIABLE XXXXXXXXXXXXX" << endl;
-	for(int i = 0; i < variables.size(); i++){
-		variables[i]->printVariable();
-	}
-	cout << "YYYYYYYYYYYYYY PRINTING VARIABLE YYYYYYYYYY" << endl;
+	vector<Command*> commands = getCommands(&pos);
 	pos--;
 	while(this->tokens[++pos]->lexem != "}"){
 		cout << "I Have: " << this->tokens[pos]->lexem << endl;
+		if(pos == this->tokens.size() - 1)
+			throw new SyntaticException(this->tokens[pos],
+							string("Expected '}', got: '") + this->tokens[pos]->lexem
+							+ string("'"));
 	}
 	
 	++pos;
@@ -115,6 +115,7 @@ Block* Parser::getBlock(int* position){
 vector<Variable*> Parser::getVariableDeclarations(int* position) {
 	vector<Variable*> variables;
 	int pos = *position;
+	bool found_semicolem;
 	// full declaration: type name ...
 	while(true){
 		// partial declaration: name, name ...
@@ -122,7 +123,8 @@ vector<Variable*> Parser::getVariableDeclarations(int* position) {
 		if(type->type != Token::TYPE){
 			break;
 		}
-		while(true){
+		found_semicolem = false;
+		while(!found_semicolem){
 			vector<Token*> var_tokens;
 			string lex = this->tokens[++pos]->lexem;
 			var_tokens.push_back(type);
@@ -133,15 +135,10 @@ vector<Variable*> Parser::getVariableDeclarations(int* position) {
 									"Unexpected end of variable declaration");
 				lex = this->tokens[++pos]->lexem;
 			}
-			int pos = 0;
-			cout << "\n\nxxxxxxxxxxx VARIABLE TOKENS xxxxxxxxxxx\n\n";
-			for(int i = 0; i < var_tokens.size(); i++){
-				var_tokens[i]->printToken();
-			}
-			cout << "\nyyyyyyyyyyyyy VARIABLE TOKENS yyyyyyyyyyyy\n\n";
-			Variable* var = getVariable(var_tokens, &pos);
+			int pos2 = 0;
+			Variable* var = getVariable(var_tokens, &pos2);
 			
-			if(pos != var_tokens.size())
+			if(pos2 != var_tokens.size())
 				throw new SyntaticException(var_tokens[var_tokens.size() - 1],
 								"Invalid variable declaration");
 			
@@ -153,15 +150,11 @@ vector<Variable*> Parser::getVariableDeclarations(int* position) {
 			variables.push_back(var);
 			if(lex == ";"){
 				pos++;
-				break;
+				found_semicolem = true;
 			}
 		}
 	}
-	for(int i = 0; i < variables.size(); i++){
-		cout << "Variable " << i+1 << ":" << endl;
-		variables[i]->printVariable();
-		cout << "\n-----------------------------\n";
-	}
+	
 	*position = pos;
 	
 	return variables;
@@ -285,17 +278,26 @@ Variable* Parser::getVariable(vector<Token*> tokens, int* pos){
 	}
 }
 FuncCall* Parser::getFuncCall(vector<Token*> tokens, int* pos){
+	int i = *pos;
 	vector<Token*> args_tokens;
 	vector<Expression*> args;
-	if(tokens.size() < 3 || tokens[0]->type != Token::NAME || tokens[1]->lexem != "(")
+	Token* name;
+	
+	if(i + 2 >= tokens.size() || tokens.size() < 3
+					|| tokens[i]->type != Token::NAME || tokens[i+1]->lexem != "(")
 		return NULL;
 	
-	int i = 2;
+	name = tokens[i];
+	
+	i += 2;
 	while(tokens[i]->lexem != ")"){
 		if(tokens[i]->lexem == ","){
 			if(args_tokens.size() == 0)
-				throw new SyntaticException(tokens[i], "Unexpected ','. Expected expression");
-			args.push_back(resolve(args_tokens));
+				throw new SyntaticException(tokens[i], "Unexpected ','. Expected argument");
+			Expression* arg = resolve(args_tokens);
+			if(arg == NULL)
+				throw new SyntaticException(tokens[i-1], "Invalid argument");
+			args.push_back(arg);
 			args_tokens.clear();
 		} else {
 			args_tokens.push_back(tokens[i]);
@@ -306,8 +308,16 @@ FuncCall* Parser::getFuncCall(vector<Token*> tokens, int* pos){
 		
 		i++;
 	}
+	// last argument
+	if(args_tokens.size() > 0){
+		Expression* arg = resolve(args_tokens);
+		if(arg == NULL)
+			throw new SyntaticException(tokens[i-1], "Invalid argument");
+		
+		args.push_back(arg);
+	}
 	*pos = i + 1;
-	return new FuncCall(tokens[0], args);
+	return new FuncCall(name, args);
 }
 Expression* Parser::resolve(vector<Token*> tokens){
 	vector<ExprOrOpToken*> eot;
@@ -319,7 +329,6 @@ Expression* Parser::resolve(vector<Token*> tokens){
 		ExprOrOpToken* node = (ExprOrOpToken*) malloc(sizeof(ExprOrOpToken));
 		node->expr = NULL;
 		node->op = NULL;
-		
 		if(tokens[i]->type == Token::OPERATOR || tokens[i]->type == Token::OPERATOR2){
 			node->op = tokens[i];
 			i++;
@@ -542,6 +551,12 @@ Expression* Parser::resolve(vector<ExprOrOpToken*> eot){
 		throw new SyntaticException(eot[0]->expr, "Couldn't mount expression");
 	else
 		throw new SyntaticException(eot[0]->op, "Couldn't mount expression");
+}
+
+vector<Command*> Parser::getCommands(int* position){
+	vector<Command*> commands;
+	
+	return commands;
 }
 
 Parser::~Parser() {

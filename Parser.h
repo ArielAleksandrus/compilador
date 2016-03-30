@@ -47,9 +47,11 @@ private:
 	Expression* resolve(std::vector<Token*> tokens);
 	Expression* resolve(std::vector<ExprOrOpToken*> expr_tokens);
 	
+	std::vector<Variable*> getVariableDeclarations(int* position);
 	Variable* getVariable(std::vector<Token*> tokens, int* pos);
 	FuncCall* getFuncCall(std::vector<Token*> tokens, int* pos);
-	std::vector<Variable*> getVariableDeclarations(int* position);
+	
+	std::vector<Command*> getCommands(int* position);
 };
 
 #endif /* PARSER_H */

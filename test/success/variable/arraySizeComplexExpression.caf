@@ -1,5 +1,8 @@
+int add1(int x){
+	retorne x+1;
+}
 int func(int a1){
-	int a2[10], b[a1 e 1 ? 2 : a +!!c];
+	int a2[10], b[a1 e 1 + func(3) ? 2 : a +!!c];
 	car c;
 
 	retorne 0;
