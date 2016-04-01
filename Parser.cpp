@@ -98,6 +98,18 @@ Block* Parser::getBlock(int* position){
 	vector<Variable*> variables = getVariableDeclarations(&pos);
 	vector<Command*> commands = getCommands(&pos);
 	pos--;
+	
+	cout << "VARIABLES DETECTED: " << variables.size() << endl << endl;
+	for(int i = 0; i < variables.size(); i++){
+		variables[i]->printVariable();
+	}
+	cout << "\nEND OF VARIABLES DETECTION\n\n";
+	cout << "COMMANDS DETECTED: " << commands.size() << endl << endl;
+	for(int i = 0; i < commands.size(); i++){
+		commands[i]->printCommand();
+	}
+	cout << "\nEND OF COMMANDS DETECTION\n\n";
+	
 	while(this->tokens[++pos]->lexem != "}"){
 		cout << "I Have: " << this->tokens[pos]->lexem << endl;
 		if(pos == this->tokens.size() - 1)
@@ -209,6 +221,8 @@ Variable* Parser::getVariable(vector<Token*> tokens, int* pos){
 				if(value_tokens.size() == 0)
 					throw new SyntaticException(tokens[jmp], "Expression not found");
 				value = resolve(value_tokens);
+				if(value == NULL)
+					throw new SyntaticException(tokens[jmp], "Invalid variable value");
 				value_tokens.clear();
 				jmp++;
 			}
@@ -229,6 +243,7 @@ Variable* Parser::getVariable(vector<Token*> tokens, int* pos){
 								+ tokens[jmp]->type_string());
 			name = tokens[jmp];
 			
+			// can be array and/or assignment
 			if(jmp + 2 < tokens.size()){
 				// is array.
 				if(tokens[++jmp]->lexem == "["){
@@ -249,14 +264,16 @@ Variable* Parser::getVariable(vector<Token*> tokens, int* pos){
 					// is assignment.
 				}
 				if(tokens[jmp]->lexem == "="){
-					while(++jmp < tokens.size() && tokens[jmp]->lexem != ";")
+					while(++jmp < tokens.size() && tokens[jmp]->lexem != ";"
+									&& tokens[jmp]->lexem != ","){
 						value_tokens.push_back(tokens[jmp]);
+					}
 					
 					value = resolve(value_tokens);
 					if(value == NULL)
 						throw new SyntaticException(tokens[jmp], "Invalid variable assignment expression");
 					
-					*pos += jmp + 1;
+					*pos = jmp;
 					return new Variable(type, name, false, value);
 					
 					// is function call, but not a function declaration. throw error.
@@ -554,9 +571,91 @@ Expression* Parser::resolve(vector<ExprOrOpToken*> eot){
 }
 
 vector<Command*> Parser::getCommands(int* position){
+	int i = *position;
 	vector<Command*> commands;
+	vector<Token*> cmd_tokens, expr_tokens, block_tokens;
 	
+	while(true){
+		if(i >= this->tokens.size() || this->tokens[i]->lexem == "}"){
+			*position = i;
+			return commands;
+		}
+		
+		Token* cur = this->tokens[i];
+		// can be assignment, function call, useless expression (like 3 + 5;), etc.
+		if(cur->type == Token::NAME){
+			if(i == this->tokens.size() - 1)
+				throw new SyntaticException(cur, "Unexpected end of expression");
+			cmd_tokens.push_back(cur);
+			while(cur = this->tokens[++i], cur->lexem != ";"){
+				cmd_tokens.push_back(cur);
+				if(i == this->tokens.size() - 1)
+					throw new SyntaticException(cur, "Unexpected end of expression");
+			}
+			commands.push_back(new Command(resolve(cmd_tokens)));
+			cmd_tokens.clear();
+			// is a command, like retorne 1, se(a > 3) entao a = a - 3, etc.
+		} else if(cur->type == Token::COMMAND){
+			Token* name_token = cur;
+			string name = name_token->lexem;
+			
+			// we guarantee that there will be at least 1 more token.
+			if(i + 1 >= this->tokens.size() - 1)
+				throw new SyntaticException(cur, "Unexpected end of command");
+			
+			// this command take no arguments.
+			if(name == "novalinha"){
+				if(cur = this->tokens[++i], cur->lexem != ";")
+					throw new SyntaticException(cur,
+									string("Expected ';' as this command takes no arguments.")
+									+ string(" Found '" + cur->lexem + string("'")));
+				
+				// this command takes an expression.
+			} else if(name == "retorne" || name == "escreva"){
+				while(this->tokens[++i]->lexem != ";"){
+					expr_tokens.push_back(this->tokens[i]);
+					if(i >= this->tokens.size() -1)
+						throw new SyntaticException(this->tokens[i],
+										"Unexpected end of expression");
+				}
+				Expression* expr = resolve(expr_tokens);
+				expr_tokens.clear();
+				if(expr == NULL)
+					throw new SyntaticException(this->tokens[i], "Invalid expression");
+				commands.push_back(new Command(name_token, expr));
+				
+				// this command takes a variable;
+			} else if(name == "leia"){
+				Variable* v = getVariable(this->tokens, &i);
+				if(v == NULL || v->value != NULL || v->type != NULL)
+					throw new SyntaticException(this->tokens[i-1],
+									"Not a valid variable use");
+				if(i >= this->tokens.size() - 1 || this->tokens[i+1]->lexem != ";")
+					throw new SyntaticException(this->tokens[i], "Missing ';'");
+				commands.push_back(new Command(name_token, v));
+				
+				// INCOMPLETE!!! missing enquanto, se entao senao, etc.
+				
+				// nothing else should be considered. Only expressions and commands.
+			} else {
+				throw new SyntaticException(this->tokens[i],
+								string("Expected expression or command. Found " )
+								+ this->tokens[i]->type_string() + string(" '")
+								+ this->tokens[i]->lexem + string("'"));
+			}
+		}
+		i++;
+	}
+	
+	*position = i;
 	return commands;
+}
+
+Command* Parser::getCommand(vector<Token*> tokens){
+	Command* command;
+	for(int i = 0; i < tokens.size(); i++)
+		tokens[i]->printToken();
+	return command;
 }
 
 Parser::~Parser() {

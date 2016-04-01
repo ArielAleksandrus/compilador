@@ -70,7 +70,12 @@ public:
 		"programa",
 		"retorne",
 		"se",
-		"enquanto"
+		"entao",
+		"senao",
+		"enquanto",
+		"leia",
+		"escreva",
+		"novalinha"
 	};
 	std::vector<std::string> types = {
 		"int",

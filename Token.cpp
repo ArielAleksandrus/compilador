@@ -17,13 +17,11 @@
 
 using namespace std;
 
-Token::Token(int line_number, int col_number, string lexem, int type,
-				int operator_type /* = 0 */){
+Token::Token(int line_number, int col_number, string lexem, int type){
 	this->line_number = line_number;
 	this->col_number = col_number;
 	this->lexem = lexem;
 	this->type = type;
-	this->operator_type = operator_type;
 }
 
 string Token::type_string(){
@@ -42,23 +40,6 @@ string Token::type_string(){
 		default:
 			throw new Unimplemented("Should implement string value for Token type: "
 							+ to_string(this->type));
-	}
-}
-
-string Token::operator_type_string(){
-	switch(this->operator_type){
-		case 0:
-			return "Undefined type";
-		case Token::UNARY_OPERATOR:
-			return "Unary operator";
-		case Token::DUAL_OPERATOR:
-			return "Dual operator";
-		case Token::TERN_OPERATOR:
-			return "Ternary operator";
-		default:
-			throw new Unimplemented(
-							"Should implement string value for Token operator type: "
-							+ to_string(this->operator_type));
 	}
 }
 
