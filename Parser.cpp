@@ -341,7 +341,6 @@ FuncCall* Parser::getFuncCall(vector<Token*> tokens, int* pos){
 	return new FuncCall(name, args);
 }
 Expression* Parser::resolve(vector<Token*> tokens){
-	tokens[0]->printToken();
 	vector<ExprOrOpToken*> eot;
 	vector<Token*> in_parenthesis;
 	Variable* v;
@@ -728,6 +727,7 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
 				} else if(tokens[i]->type == Token::COMMAND){
 					vector<Command*> following = getCommands(&i, tokens, 1);
 					c1 = following[0];
+					i--;
 				} else {
 					throw new SyntaticException(tokens[i],
 									"not a Block, Command or Expression");
@@ -743,6 +743,7 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
 								tokens[i + 1]->lexem != "senao")){
 					commands.push_back(new Command(name_token, bool_evaluation, aux_name1,
 									c1));
+					i++;
 					continue;
 					// for "command(expr) command another_command another_other_command"...
 				} else if(name == "se" && i+2 <= tokens.size()) {
@@ -766,6 +767,17 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
 						eaux2 = resolve(expr_tokens);
 						c2 = new Command(eaux2);
 						expr_tokens.clear();
+						
+						// is another command.
+					} else if(tokens[i]->type == Token::COMMAND){
+						vector<Command*> following = getCommands(&i, tokens, 1);
+						c2 = following[0];
+						commands.push_back(new Command(name_token, bool_evaluation, aux_name1,
+										c1, aux_name2, c2));
+						i--;
+					} else {
+						throw new SyntaticException(tokens[i],
+										"not a Block, Command or Expression");
 					}
 
 					if(c2 == NULL)
@@ -774,16 +786,6 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
 
 					commands.push_back(new Command(name_token, bool_evaluation, aux_name1,
 									c1, aux_name2, c2));
-					
-					// is another command
-				} else if(tokens[i]->type == Token::COMMAND){
-					vector<Command*> following = getCommands(&i, tokens, 1);
-					c2 = following[0];
-					commands.push_back(new Command(name_token, bool_evaluation, aux_name1,
-									c1, aux_name2, c2));
-				} else {
-					throw new SyntaticException(tokens[i],
-									"not a Block, Command or Expression");
 				}
 
 
