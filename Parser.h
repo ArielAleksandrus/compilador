@@ -52,7 +52,8 @@ private:
 	Variable* getVariable(std::vector<Token*> tokens, int* pos);
 	FuncCall* getFuncCall(std::vector<Token*> tokens, int* pos);
 	
-	std::vector<Command*> getCommands(int* position, std::vector<Token*> tokens);
+	std::vector<Command*> getCommands(int* position, std::vector<Token*> tokens,
+		int max = -1);
 };
 
 #endif /* PARSER_H */

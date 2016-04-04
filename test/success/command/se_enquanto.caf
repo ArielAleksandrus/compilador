@@ -1,0 +1,9 @@
+int func1(int a, int b){
+    se(a > b) entao
+        enquanto((b = b - 1) != 0)
+            a = a * b;
+
+    retorne a;
+}
+
+programa{}

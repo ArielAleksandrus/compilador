@@ -341,7 +341,9 @@ FuncCall* Parser::getFuncCall(vector<Token*> tokens, int* pos){
 	return new FuncCall(name, args);
 }
 Expression* Parser::resolve(vector<Token*> tokens){
+	tokens[0]->printToken();
 	vector<ExprOrOpToken*> eot;
+	vector<Token*> in_parenthesis;
 	Variable* v;
 	FuncCall* fc;
 	
@@ -350,7 +352,29 @@ Expression* Parser::resolve(vector<Token*> tokens){
 		ExprOrOpToken* node = (ExprOrOpToken*) malloc(sizeof(ExprOrOpToken));
 		node->expr = NULL;
 		node->op = NULL;
-		if(tokens[i]->type == Token::OPERATOR || tokens[i]->type == Token::OPERATOR2){
+		
+		// is '(' and is not a function call
+		if(tokens[i]->lexem=="(" && (i == 0||tokens[i - 1]->type != Token::NAME)){
+			int open_par = 1;
+			while(tokens[++i]->lexem != ")" || open_par != 1){
+				if(i >= tokens.size() - 1)
+					throw new SyntaticException(tokens[i],
+									"Expected ')' to end expression");
+				
+				if(tokens[i]->lexem == "(")
+					open_par++;
+				else if(tokens[i]->lexem == ")")
+					open_par--;
+				
+				in_parenthesis.push_back(tokens[i]);
+			}
+			i++;
+			if(in_parenthesis.size() == 0)
+				throw new SyntaticException(tokens[i], "Expression cannot be empty");
+			node->expr = resolve(in_parenthesis);
+			in_parenthesis.clear();
+		} else if(tokens[i]->type == Token::OPERATOR ||
+						tokens[i]->type == Token::OPERATOR2){
 			node->op = tokens[i];
 			i++;
 		} else if(fc = getFuncCall(tokens, &i)){
@@ -577,12 +601,13 @@ Expression* Parser::resolve(vector<ExprOrOpToken*> eot){
 		throw new SyntaticException(eot[0]->op, "Couldn't mount expression");
 }
 
-vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens){
+vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
+				int max /* = -1 */){
 	int i = *position;
 	vector<Command*> commands;
 	vector<Token*> cmd_tokens, expr_tokens;
 	
-	while(i < tokens.size()){
+	while(i < tokens.size() && (max == -1 || commands.size() < max)){
 		Token* cur = tokens[i];
 		// can be assignment, function call, useless expression (like 3 + 5;), etc.
 		if(cur->type == Token::NAME){
@@ -639,12 +664,13 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens){
 					throw new SyntaticException(tokens[i], "Missing ';'");
 				commands.push_back(new Command(name_token, v));
 				
-				// these commands take an expr to be evaluated and another expr or block
+				// these commands take an expr to be evaluated and another expr, block
+				// or command.
 			} else if(name == "enquanto" || name == "se") {
 				Expression *bool_evaluation, *eaux1 = NULL, *eaux2 = NULL;
 				Block *baux1 = NULL, *baux2 = NULL;
 				Token *aux_name1 = NULL, *aux_name2 = NULL;
-				Command* inner;
+				Command *c1, *c2;
 				
 				if(tokens[++i]->lexem != "(")
 					throw new SyntaticException(tokens[i],
@@ -680,14 +706,12 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens){
 				
 				// is block.
 				if(tokens[++i]->lexem == "{") {
-					cout << "IS BLOCK" << endl;
 					baux1 = getBlock(&i, tokens);
 					i--; // let's point to '}'
-					inner = new Command(baux1);
+					c1 = new Command(baux1);
 					
-					// should be expression, which will become a command.
- 				} else {
-					cout << "IS EXPR" << endl;
+					// is an expression.
+ 				} else if(tokens[i]->type == Token::NAME) {
 					i--;
 					while(tokens[++i]->lexem != ";"){
 						expr_tokens.push_back(tokens[i]);
@@ -697,31 +721,40 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens){
 											+ string("'"));
 					}
 					eaux1 = resolve(expr_tokens);
-					inner = new Command(eaux1);
+					c1 = new Command(eaux1);
 					expr_tokens.clear();
+					
+					// is a command
+				} else if(tokens[i]->type == Token::COMMAND){
+					vector<Command*> following = getCommands(&i, tokens, 1);
+					c1 = following[0];
+				} else {
+					throw new SyntaticException(tokens[i],
+									"not a Block, Command or Expression");
 				}
 				
-				if(baux1 == NULL && eaux1 == NULL)
+				if(c1 == NULL)
 					throw new SyntaticException(tokens[i-1],
-									"Invalid block or expression to be executed");
+									"Invalid block, command or expression to be executed");
 				
+				// for "command(expr) command" cases.
 				if(name == "enquanto" ||
 								(name == "se" && i + 2 <= tokens.size() &&
 								tokens[i + 1]->lexem != "senao")){
 					commands.push_back(new Command(name_token, bool_evaluation, aux_name1,
-									inner));
+									c1));
 					continue;
+					// for "command(expr) command another_command another_other_command"...
 				} else if(name == "se" && i+2 <= tokens.size()) {
 					aux_name2 = tokens[++i];
-					Command* inner2;
 					// is block.
 					if(tokens[++i]->lexem == "{"){
 						baux2 = getBlock(&i, tokens);
-						inner2 = new Command(baux2);
+						c2 = new Command(baux2);
 						i--;
 						
-						// should be expression.
-					} else {
+						// is an expression.
+					} else if(tokens[i]->type == Token::NAME) {
 						i--;
 						while(tokens[++i]->lexem != ";"){
 							expr_tokens.push_back(tokens[i]);
@@ -731,15 +764,26 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens){
 												+ string("'"));
 						}
 						eaux2 = resolve(expr_tokens);
-						inner2 = new Command(eaux2);
+						c2 = new Command(eaux2);
 						expr_tokens.clear();
 					}
-					if(baux2 == NULL && eaux2 == NULL)
+
+					if(c2 == NULL)
 						throw new SyntaticException(tokens[i-1],
-										"Invalid block or expression to be executed");
+										"Invalid block, command or expression to be executed");
 
 					commands.push_back(new Command(name_token, bool_evaluation, aux_name1,
-									inner, aux_name2, inner2));
+									c1, aux_name2, c2));
+					
+					// is another command
+				} else if(tokens[i]->type == Token::COMMAND){
+					vector<Command*> following = getCommands(&i, tokens, 1);
+					c2 = following[0];
+					commands.push_back(new Command(name_token, bool_evaluation, aux_name1,
+									c1, aux_name2, c2));
+				} else {
+					throw new SyntaticException(tokens[i],
+									"not a Block, Command or Expression");
 				}
 
 
