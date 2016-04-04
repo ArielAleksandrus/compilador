@@ -19,6 +19,7 @@ Function::Function(Token* type, Token* name, Block* block, vector<Parameter*> ar
 	this->type = type;
 	this->name = name;
 	this->arguments = arguments;
+	this->block = block;
 }
 
 Function::~Function() {

@@ -14,17 +14,24 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
+#include <iostream>
 #include <vector>
 #include <string>
 
 #include "Variable.h"
+#include "Command.h"
 
+
+class Command;
 class Block {
 public:
-	Block(std::vector<Variable*> variables);
+	Block(std::vector<Variable*> variables, std::vector<Command*> commands);
 	virtual ~Block();
+	
+	void printBlock();
 private:
 	std::vector<Variable*> variables;
+	std::vector<Command*> commands;
 };
 
 #endif /* BLOCK_H */

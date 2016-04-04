@@ -21,6 +21,7 @@
 #include "Expression.h"
 #include "Block.h"
 
+class Block;
 class Command {
 public:
 	/**
@@ -106,7 +107,7 @@ public:
 	 * like the command "entao" that is followed by "se".
 	 */
 	Command(Token* name, Expression* val, Token* aux_name1, Command* aux1,
-	Token* aux_name2, Command* aux2);
+		Token* aux_name2, Command* aux2);
 	
 	void printCommand();
 	

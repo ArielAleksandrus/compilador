@@ -27,6 +27,7 @@ public:
 	virtual ~Function();
 	
 	Token *type, *name;
+	Block *block;
 	std::vector<Parameter*> arguments;
 private:
 

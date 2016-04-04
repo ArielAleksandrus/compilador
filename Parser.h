@@ -42,17 +42,17 @@ public:
 private:
 	std::vector<Token*> tokens;
 	Function* checkFunction(int* position);
-	Block* getBlock(int* position);
+	Block* getBlock(int* position, std::vector<Token*> tokens);
 	
 	Expression* resolve(std::vector<Token*> tokens);
 	Expression* resolve(std::vector<ExprOrOpToken*> expr_tokens);
 	
-	std::vector<Variable*> getVariableDeclarations(int* position);
+	std::vector<Variable*> getVariableDeclarations(int* position,
+		std::vector<Token*> tokens);
 	Variable* getVariable(std::vector<Token*> tokens, int* pos);
 	FuncCall* getFuncCall(std::vector<Token*> tokens, int* pos);
 	
-	std::vector<Command*> getCommands(int* position);
-	Command* getCommand(std::vector<Token*> tokens);
+	std::vector<Command*> getCommands(int* position, std::vector<Token*> tokens);
 };
 
 #endif /* PARSER_H */

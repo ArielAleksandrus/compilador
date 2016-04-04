@@ -1,5 +1,10 @@
 int soma(int a, int b){
     int a2 = 5, b2, c = a + 3, d[a*c + (0 <= 3 ? 1 + a : a - 1)];
+    b2 = 5;
+    se (c > 3) entao {
+    	b2 = b2 * 5;
+    } senao
+    	b2 = b2 / 5;
     retorne a+b;
 }
 int proxChar(car a){

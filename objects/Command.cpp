@@ -19,7 +19,7 @@ Command::Command(Token* name){
 	this->name = name;
 }
 Command::Command(Expression* val){
-	this->lval = lval;
+	this->val = val;
 }
 Command::Command(Block* body){
 	this->body = body;
@@ -54,7 +54,7 @@ Command::Command(Token* name, Expression* val, Token* aux_name1, Command* aux1,
 }
 
 void Command::printCommand(){
-	cout << "+++++++++++++++++ COMMAND +++++++++++++++++++++\n\n";
+	cout << "++++++ COMMAND ++++++\n\n";
 	if(name != NULL){
 		cout << "++++++ COMMAND NAME ++++++\n";
 		name->printToken();
@@ -69,6 +69,11 @@ void Command::printCommand(){
 		cout << "++++++ COMMAND VARIABLE ++++++\n";
 		lval->printVariable();
 		cout << "------ COMMAND VARIABLE ------\n";
+	}
+	if(body != NULL){
+		cout << "++++++ COMMAND BLOCK ++++++\n";
+		body->printBlock();
+		cout << "------ COMMAND BLOCK ------\n";
 	}
 	if(aux_name1 != NULL){
 		cout << "++++++ COMMAND AUX_NAME1 ++++++\n";
@@ -90,7 +95,7 @@ void Command::printCommand(){
 		aux2->printCommand();
 		cout << "------ COMMAND AUX2 ------\n";
 	}
-	cout << "----------------- COMMAND ---------------------\n\n";
+	cout << "------ COMMAND ------\n\n";
 }
 
 Command::~Command() {
