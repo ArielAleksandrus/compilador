@@ -22,6 +22,5 @@ test_debug: clean $(TEST)
 	$(CC) $(TEST) $(DEBUGFLAGS) -o $(BIN)
 
 clean:
-	rm -f *.o
 	rm -f $(BIN)
 	rm -f $(MAKELOG)

@@ -1,0 +1,12 @@
+programa{
+	int a = 3, b = 5;
+	se(a > b) entao
+	  enquanto((b = b - 1) != 0)
+	      a = a * b;
+	senao se (a < b) entao
+	  retorne b;
+	senao
+	  retorne 0;
+
+	retorne a;
+}

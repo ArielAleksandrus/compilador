@@ -64,10 +64,11 @@ Token* FileReader::getWord(string line, int line_number, int* start /*= 0*/){
 	string word = "";
 	for(int i = 0; i < partial.length() + 1; i++){
 		if(i == partial.length()){
+			int aux = *start;
 			*start = -1;
 			if(word.empty())
 				return NULL;
-			return new Token(line_number, *start, word, keyword(word));
+			return new Token(line_number, aux, word, keyword(word));
 		}
 		*start += 1;
 		char c = partial.at(i);

@@ -25,6 +25,10 @@ class Block;
 class Command {
 public:
 	/**
+	 * Useful for emtpy command, like ';' in se(expr) then ;
+	 */
+	Command();
+	/**
 	 * Useful for the simplest of commands.\n
 	 * Example:\n
 	 * 1) novalinha\n

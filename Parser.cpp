@@ -23,6 +23,9 @@ Parser::Parser(vector<Token*> tokens, Tree* t) {
 	
 	if(tokens[pos]->lexem == "programa"){
 		// get block programa
+		pos++;
+		t->programa = getBlock(&pos, tokens);
+		t->programa->printBlock();
 	} else {
 		throw new SyntaticException(tokens[pos],
 						"Expected function or 'programa' block, got: '" + tokens[pos]->lexem + "'");
@@ -39,7 +42,8 @@ Function* Parser::checkFunction(int* position){
 	// should be a function
 	if(this->tokens[pos]->type == Token::TYPE){
 		func_type = this->tokens[pos];
-		if(func_name = this->tokens[++pos], this->tokens[pos]->type == Token::NAME && this->tokens[++pos]->lexem == "("){
+		if(func_name = this->tokens[++pos], this->tokens[pos]->type == Token::NAME
+						&& this->tokens[++pos]->lexem == "("){
 			// Now we will check for the argument's list.
 			Token *arg_type, *arg_name;
 			bool is_array;
@@ -86,7 +90,6 @@ Function* Parser::checkFunction(int* position){
 	return new Function(func_type, func_name, getBlock(position, this->tokens), args);
 }
 
-// INCOMPLETE!!!
 Block* Parser::getBlock(int* position, vector<Token*> tokens){
 	int pos = *position;
 	if(tokens[pos]->lexem != "{"){
@@ -114,11 +117,6 @@ Block* Parser::getBlock(int* position, vector<Token*> tokens){
 	vector<Variable*> variables = getVariableDeclarations(&aux, block_tokens);
 	vector<Command*> commands = getCommands(&aux, block_tokens);
 	
-	cout << "Total commands: " << commands.size() << endl;
-	for(int i = 0; i < commands.size(); i++){
-		commands[i]->printCommand();
-	}
-	
 	if(aux != block_tokens.size())
 		throw new SyntaticException(block_tokens[aux],string("Unexpected ")
 						+ block_tokens[aux]->type_string() + string(" '")
@@ -129,11 +127,17 @@ Block* Parser::getBlock(int* position, vector<Token*> tokens){
 
 vector<Variable*> Parser::getVariableDeclarations(int* position, 
 				vector<Token*> tokens) {
+	
 	vector<Variable*> variables;
+	if(tokens.size() == 0)
+		return variables;
+	
 	int pos = *position;
 	bool found_semicolem;
 	// full declaration: type name ...
 	while(true){
+		if(pos >= tokens.size())
+			break;
 		// partial declaration: name, name ...
 		Token* type = tokens[pos];
 		if(type->type != Token::TYPE){
@@ -153,7 +157,6 @@ vector<Variable*> Parser::getVariableDeclarations(int* position,
 			}
 			int pos2 = 0;
 			Variable* var = getVariable(var_tokens, &pos2);
-			
 			if(pos2 != var_tokens.size())
 				throw new SyntaticException(var_tokens[var_tokens.size() - 1],
 								"Invalid variable declaration");
@@ -164,6 +167,7 @@ vector<Variable*> Parser::getVariableDeclarations(int* position,
 				throw new SyntaticException(var_tokens[var_tokens.size() - 1],
 								"Variable cannot be null");
 			variables.push_back(var);
+			
 			if(lex == ";"){
 				pos++;
 				found_semicolem = true;
@@ -629,7 +633,7 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
 			string name = name_token->lexem;
 			
 			// we guarantee that there will be at least 1 more token.
-			if(i + 1 >= tokens.size() - 1)
+			if(i >= tokens.size() - 1)
 				throw new SyntaticException(cur, "Unexpected end of command");
 			
 			// this command take no arguments.
@@ -638,6 +642,8 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
 					throw new SyntaticException(cur,
 									string("Expected ';' as this command takes no arguments.")
 									+ string(" Found '" + cur->lexem + string("'")));
+				
+				commands.push_back(new Command(name_token));
 				
 				// this command takes an expression.
 			} else if(name == "retorne" || name == "escreva"){
@@ -728,6 +734,8 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
 					vector<Command*> following = getCommands(&i, tokens, 1);
 					c1 = following[0];
 					i--;
+				} else if(tokens[i]->lexem == ";") {
+					c1 = new Command();
 				} else {
 					throw new SyntaticException(tokens[i],
 									"not a Block, Command or Expression");
@@ -743,9 +751,8 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
 								tokens[i + 1]->lexem != "senao")){
 					commands.push_back(new Command(name_token, bool_evaluation, aux_name1,
 									c1));
-					i++;
-					continue;
-					// for "command(expr) command another_command another_other_command"...
+					
+					// for "se(expr) entao command senao se(expr) entao command..."
 				} else if(name == "se" && i+2 <= tokens.size()) {
 					aux_name2 = tokens[++i];
 					// is block.
@@ -772,9 +779,9 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
 					} else if(tokens[i]->type == Token::COMMAND){
 						vector<Command*> following = getCommands(&i, tokens, 1);
 						c2 = following[0];
-						commands.push_back(new Command(name_token, bool_evaluation, aux_name1,
-										c1, aux_name2, c2));
 						i--;
+					} else if(tokens[i]->lexem == ";") {
+						c2 = new Command();
 					} else {
 						throw new SyntaticException(tokens[i],
 										"not a Block, Command or Expression");

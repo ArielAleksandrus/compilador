@@ -15,6 +15,10 @@
 
 using namespace std;
 
+Command::Command(){
+	
+}
+
 Command::Command(Token* name){
 	this->name = name;
 }

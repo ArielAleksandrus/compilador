@@ -1,0 +1,10 @@
+programa{
+	se (1 > 2) entao ;
+	senao ;
+
+	se(2 > 1) entao {
+		;
+	} senao {
+		
+	}
+}

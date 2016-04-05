@@ -29,9 +29,11 @@ public:
 	virtual ~Block();
 	
 	void printBlock();
-private:
+	
 	std::vector<Variable*> variables;
 	std::vector<Command*> commands;
+private:
+	
 };
 
 #endif /* BLOCK_H */

@@ -1,0 +1,16 @@
+programa{
+	int a = 5, c = 10, b = c - a;
+	se (a > b) entao {
+		se (a > c) entao
+			escreva a;
+		senao se (a < c) entao
+			escreva c;
+		senao {
+			escreva "Os valores de 'a' e 'c' são iguais a ";
+			escreva c;
+		}
+		novalinha;
+	} senao {
+		escreva b;
+	}
+}
