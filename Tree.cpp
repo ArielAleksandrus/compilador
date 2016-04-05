@@ -18,6 +18,28 @@ using namespace std;
 Tree::Tree() {
 }
 
+void Tree::printTree(){
+	printFunctions();
+	printGlobalVariables();
+	printPrograma();
+}
+
+void Tree::printPrograma(){
+	cout << "\nBlock 'programa':" << endl;
+	programa->printBlock();
+	cout << "End of block 'programa'" << endl << endl;
+}
+
+void Tree::printGlobalVariables(){
+	if(globals.size() == 0){
+		cout << "No global variables declared" << endl;
+	}
+	cout << "Global variables: " << globals.size() << endl;
+	for(int i = 0; i < globals.size(); i++){
+		globals[i]->printVariable();
+	}
+}
+
 void Tree::printFunctions(){
 	if(this->functions.size() == 0){
 		cout << "No functions to show." << endl;

@@ -21,15 +21,20 @@
 #include "objects/Function.h"
 #include "objects/Parameter.h"
 #include "objects/Block.h"
+#include "objects/Variable.h"
 
 class Tree {
 public:
 	Tree();
 	virtual ~Tree();
 	
+	void printTree();
 	void printFunctions();
+	void printGlobalVariables();
+	void printPrograma();
 	
 	std::vector<Function*> functions;
+	std::vector<Variable*> globals;
 	Block* programa;
 private:
 };

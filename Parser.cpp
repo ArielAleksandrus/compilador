@@ -18,21 +18,34 @@ using namespace std;
 Parser::Parser(vector<Token*> tokens, Tree* t) {
 	this->tokens = tokens;
 	int pos = 0;
-	while(tokens[pos]->type == Token::TYPE)
-		t->functions.push_back(checkFunction(&pos));
 	
-	if(tokens[pos]->lexem == "programa"){
-		// get block programa
-		pos++;
-		t->programa = getBlock(&pos, tokens);
-		t->programa->printBlock();
-	} else {
-		throw new SyntaticException(tokens[pos],
-						"Expected function or 'programa' block, got: '" + tokens[pos]->lexem + "'");
+	while(tokens[pos]->type == Token::TYPE){
+		Function* f;
+		vector<Variable*> globals;
+		// is a function
+		if(f = checkFunction(&pos), f != NULL)
+			t->functions.push_back(f);
+		// is a global variable
+		else if(globals = getVariableDeclarations(&pos, this->tokens),
+						globals.size() > 0){
+			for(int i = 0; i < globals.size(); i++)
+				t->globals.push_back(globals[i]);
+			
+			// shouldn't fall here
+		} else 
+			throw new SyntaticException(this->tokens[pos],
+							"Expected global variable, function or 'programa' declarations");
 	}
 	
-	cout << "Position: " << pos << endl;
-	
+	// get block programa
+	if(tokens[pos]->lexem == "programa"){
+		pos++;
+		t->programa = getBlock(&pos, tokens);
+	} else {
+		throw new SyntaticException(tokens[pos],
+						"Expected function, variable declaration or 'programa' block, got: '"
+						+ tokens[pos]->lexem + "'");
+	}
 }
 
 Function* Parser::checkFunction(int* position){
@@ -42,6 +55,7 @@ Function* Parser::checkFunction(int* position){
 	// should be a function
 	if(this->tokens[pos]->type == Token::TYPE){
 		func_type = this->tokens[pos];
+		// it is a function declaration.
 		if(func_name = this->tokens[++pos], this->tokens[pos]->type == Token::NAME
 						&& this->tokens[++pos]->lexem == "("){
 			// Now we will check for the argument's list.
@@ -83,6 +97,10 @@ Function* Parser::checkFunction(int* position){
 				args.push_back(new Parameter(arg_type, arg_name, is_array));
 				
 			}
+			
+			// it should be a global variable. so we can return null.
+		} else {
+			return NULL;
 		}
 	}
 	++pos;

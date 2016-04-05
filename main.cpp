@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
 	
 	Tree* t = new Tree();
 	Parser* p = new Parser(fr->getTokens(), t);
-	t->printFunctions();
+	t->printTree();
 	return 0;
 }
 
