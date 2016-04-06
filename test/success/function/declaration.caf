@@ -1,3 +1,4 @@
+int x;
 int soma(int a, int b){
     int a2 = 5, b2, c = a + 3, d[a*c + (0 <= 3 ? 1 + a : a - 1)];
     b2 = 5;

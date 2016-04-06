@@ -27,10 +27,6 @@ Expression::Expression(FuncCall* call){
 	this->call = call;
 }
 
-/*Expression::Expression(Variable* variable){
-	this->variable = variable;
-}*/
-
 Expression::Expression(Token* unary_op, Expression* lval) {
 	this->unary_op = unary_op;
 	this->lval = lval;

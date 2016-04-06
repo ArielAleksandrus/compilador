@@ -16,12 +16,11 @@
 
 #include <string>
 
+#include "../circular_dep.h"
+
 #include "../Token.h"
 #include "Variable.h"
 #include "FuncCall.h"
-
-class Variable;
-class FuncCall;
 
 class Expression {
 public:

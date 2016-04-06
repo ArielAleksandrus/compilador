@@ -1,1 +1,1 @@
-ERROR => Line 1, col 4: Expected function or 'programa' block, got: 'soma'
+ERROR => Line 1, col 4: Expected function, variable declaration or 'programa' block, got: 'soma'

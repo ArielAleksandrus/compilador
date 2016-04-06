@@ -25,3 +25,19 @@ Function::Function(Token* type, Token* name, Block* block, vector<Parameter*> ar
 Function::~Function() {
 }
 
+void Function::semanticAnalysis(SymbolTable* st){
+	SymbolTable* local = new SymbolTable();
+	local->parent = st;
+	
+	for(int i = 0; i < arguments.size(); i++)
+		arguments[i]->semanticAnalysis(local);
+	
+	for(int i = 0; i < st->funcs.size(); i++){
+		if(st->funcs[i]->name->lexem == name->lexem)
+			throw new SemanticException(SemanticException::PREVIOUSLY_FOUND,
+							name, st->funcs[i]->name, "Redeclaration of function");
+	}
+	
+	st->funcs.push_back(this);
+	block->semanticAnalysis(local);
+}

@@ -16,12 +16,20 @@
 
 #include <string>
 
+#include "../circular_dep.h"
+
+#include "../SemanticException.h"
+#include "../SymbolTable.h"
 #include "../Token.h"
 
 class Parameter {
 public:
 	Parameter(Token* type, Token* name, bool is_array = false);
 	virtual ~Parameter();
+	
+	void printParameter();
+	
+	void semanticAnalysis(SymbolTable* st);
 	
 	Token *type, *name;
 	bool is_array;

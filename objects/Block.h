@@ -18,15 +18,20 @@
 #include <vector>
 #include <string>
 
+#include "../circular_dep.h"
+
+#include "../SymbolTable.h"
+#include "../Unimplemented.h"
+
 #include "Variable.h"
 #include "Command.h"
 
-
-class Command;
 class Block {
 public:
 	Block(std::vector<Variable*> variables, std::vector<Command*> commands);
 	virtual ~Block();
+	
+	void semanticAnalysis(SymbolTable* st);
 	
 	void printBlock();
 	

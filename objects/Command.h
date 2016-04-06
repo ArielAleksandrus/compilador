@@ -17,11 +17,14 @@
 #include <iostream>
 #include <vector>
 #include <string>
+
+#include "../circular_dep.h"
+
 #include "../Token.h"
+
 #include "Expression.h"
 #include "Block.h"
 
-class Block;
 class Command {
 public:
 	/**

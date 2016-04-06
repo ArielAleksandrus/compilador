@@ -17,6 +17,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cstdlib>
+
+#include "SymbolTable.h"
 
 #include "objects/Function.h"
 #include "objects/Parameter.h"
@@ -27,6 +30,8 @@ class Tree {
 public:
 	Tree();
 	virtual ~Tree();
+	
+	void semanticAnalysis();
 	
 	void printTree();
 	void printFunctions();

@@ -15,11 +15,11 @@
 #define TOKEN_H
 
 #include <string>
+
+#include "circular_dep.h"
+
 #include "Unimplemented.h"
 #include "FileReader.h"
-
-class FileReader;
-class SyntaticException;
 
 class Token {
 public:

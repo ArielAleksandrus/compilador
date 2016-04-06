@@ -24,3 +24,17 @@ Parameter::Parameter(Token* type, Token* name, bool is_array /* = false */) {
 Parameter::~Parameter() {
 }
 
+void Parameter::printParameter(){
+	cout << "Parameter: " << type->lexem << " " << name->lexem
+					<< (is_array ? "[]" : "") << endl;
+}
+
+void Parameter::semanticAnalysis(SymbolTable* st){
+	for(int i = 0; i < st->params.size(); i++){
+		if(st->params[i]->name->lexem == name->lexem)
+			throw new SemanticException(SemanticException::PREVIOUSLY_FOUND,
+							name, st->params[i]->name, "Redeclaration of parameter");
+	}
+	
+	st->params.push_back(this);
+}

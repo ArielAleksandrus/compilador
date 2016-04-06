@@ -26,7 +26,7 @@ Parser::Parser(vector<Token*> tokens, Tree* t) {
 		if(f = checkFunction(&pos), f != NULL)
 			t->functions.push_back(f);
 		// is a global variable
-		else if(globals = getVariableDeclarations(&pos, this->tokens),
+		else if(globals = getVariableDeclarations(&pos, this->tokens, true),
 						globals.size() > 0){
 			for(int i = 0; i < globals.size(); i++)
 				t->globals.push_back(globals[i]);
@@ -144,13 +144,14 @@ Block* Parser::getBlock(int* position, vector<Token*> tokens){
 }
 
 vector<Variable*> Parser::getVariableDeclarations(int* position, 
-				vector<Token*> tokens) {
+				vector<Token*> tokens, bool is_global /* = false */) {
 	
 	vector<Variable*> variables;
 	if(tokens.size() == 0)
 		return variables;
 	
 	int pos = *position;
+	int last_valid = -1;
 	bool found_semicolem;
 	// full declaration: type name ...
 	while(true){
@@ -174,22 +175,31 @@ vector<Variable*> Parser::getVariableDeclarations(int* position,
 				lex = tokens[++pos]->lexem;
 			}
 			int pos2 = 0;
-			Variable* var = getVariable(var_tokens, &pos2);
+			Variable* var = getVariable(var_tokens, &pos2, is_global);
+			
+			if(var == NULL){
+				if(is_global){
+					if(variables.size() > 0)
+						*position = last_valid;
+					return variables;
+				} else
+					throw new SyntaticException(var_tokens[var_tokens.size() - 1],
+									"Variable cannot be null");
+			}
 			if(pos2 != var_tokens.size())
 				throw new SyntaticException(var_tokens[var_tokens.size() - 1],
 								"Invalid variable declaration");
 			
 			var_tokens.clear();
 			
-			if(var == NULL)
-				throw new SyntaticException(var_tokens[var_tokens.size() - 1],
-								"Variable cannot be null");
 			variables.push_back(var);
+			
 			
 			if(lex == ";"){
 				pos++;
 				found_semicolem = true;
 			}
+			last_valid = pos;
 		}
 	}
 	
@@ -199,7 +209,8 @@ vector<Variable*> Parser::getVariableDeclarations(int* position,
 }
 
 
-Variable* Parser::getVariable(vector<Token*> tokens, int* pos){
+Variable* Parser::getVariable(vector<Token*> tokens, int* pos,
+				bool is_global /* = false */){
 	vector<Token*> arr_pos_tokens, arr_size_tokens, value_tokens;
 	int jmp = *pos;
 	Token *name, *type;
@@ -263,6 +274,7 @@ Variable* Parser::getVariable(vector<Token*> tokens, int* pos){
 		// is declaration
 	} else if(tokens[jmp]->type == Token::TYPE){
 		type = tokens[jmp];
+		int i_type = jmp;
 		if(jmp + 1 < tokens.size()){
 			if(tokens[++jmp]->type != Token::NAME)
 				throw new SyntaticException(tokens[jmp], "Expected name of variable, got: "
@@ -304,7 +316,11 @@ Variable* Parser::getVariable(vector<Token*> tokens, int* pos){
 					
 					// is function call, but not a function declaration. throw error.
 				} else if(tokens[jmp]->lexem == "("){
-					throw new SyntaticException(tokens[jmp], "Invalid function call");
+					if(is_global){
+						*pos = i_type;
+						return NULL;
+					} else
+						throw new SyntaticException(tokens[jmp], "Invalid function call");
 				} else {
 					*pos += jmp + 1;
 					return new Variable(type, name);

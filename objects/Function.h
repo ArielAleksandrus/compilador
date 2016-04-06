@@ -17,7 +17,10 @@
 #include <vector>
 #include <string>
 
+#include "../circular_dep.h"
+
 #include "../Token.h"
+#include "../SymbolTable.h"
 #include "Parameter.h"
 #include "Block.h"
 
@@ -25,6 +28,8 @@ class Function {
 public:
 	Function(Token* type, Token* name, Block* block, std::vector<Parameter*> arguments);
 	virtual ~Function();
+	
+	void semanticAnalysis(SymbolTable* st);
 	
 	Token *type, *name;
 	Block *block;

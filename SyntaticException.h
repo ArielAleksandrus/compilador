@@ -17,11 +17,10 @@
 #include <iostream>
 #include <string>
 
+#include "circular_dep.h"
+
 #include "Token.h"
 #include "objects/Expression.h"
-
-class Expression;
-class Token;
 
 class SyntaticException : public std::exception{
 public:

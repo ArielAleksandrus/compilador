@@ -65,3 +65,19 @@ void Variable::printVariable(){
 	}
 	cout << "------- VARIABLE -------" << endl;
 }
+
+void Variable::semanticAnalysis(SymbolTable* st){
+	for(int i = 0; i < st->params.size(); i++){
+		if(st->params[i]->name->lexem == name->lexem){
+			throw new SemanticException(SemanticException::PREVIOUSLY_FOUND,
+							name, st->params[i]->name, "Redeclaration of variable");
+		}
+	}
+	for(int i = 0; i < st->vars.size(); i++){
+		if(st->vars[i]->name->lexem == name->lexem){
+			throw new SemanticException(SemanticException::PREVIOUSLY_FOUND,
+							name, st->vars[i]->name, "Redeclaration of variable");
+		}
+	}
+	st->vars.push_back(this);
+}

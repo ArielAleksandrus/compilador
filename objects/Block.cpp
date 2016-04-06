@@ -12,7 +12,6 @@
  */
 
 #include "Block.h"
-#include "Command.h"
 
 using namespace std;
 
@@ -34,6 +33,10 @@ void Block::printBlock(){
 	}
 	cout << "\nEND OF COMMANDS DETECTION\n";
 	cout << "--------- BLOCK ---------\n";
+}
+
+void Block::semanticAnalysis(SymbolTable* st){
+	throw new Unimplemented("Unimplemented block's semantic analysis");
 }
 
 Block::~Block() {

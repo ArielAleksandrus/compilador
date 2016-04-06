@@ -48,8 +48,9 @@ private:
 	Expression* resolve(std::vector<ExprOrOpToken*> expr_tokens);
 	
 	std::vector<Variable*> getVariableDeclarations(int* position,
-		std::vector<Token*> tokens);
-	Variable* getVariable(std::vector<Token*> tokens, int* pos);
+		std::vector<Token*> tokens, bool is_global = false);
+	Variable* getVariable(std::vector<Token*> tokens, int* pos,
+		bool is_global = false);
 	FuncCall* getFuncCall(std::vector<Token*> tokens, int* pos);
 	
 	std::vector<Command*> getCommands(int* position, std::vector<Token*> tokens,

@@ -15,15 +15,16 @@
 #define VARIABLE_H
 
 #include <string>
+#include <vector>
+
+#include "../circular_dep.h"
 
 #include "../Token.h"
 #include "../SyntaticException.h"
 #include "../Unimplemented.h"
+#include "../SymbolTable.h"
 
 #include "Expression.h"
-
-class Expression;
-class Token;
 
 class Variable {
 public:
@@ -75,6 +76,8 @@ public:
 	 * "array's size". if false, expr means "value of the non-array variable".
 	 */
 	Variable(Token* type, Token* name, bool is_array = false, Expression* expr = NULL);
+	
+	void semanticAnalysis(SymbolTable* st);
 	
 	void printVariable();
 	

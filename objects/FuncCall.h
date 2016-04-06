@@ -14,14 +14,13 @@
 #ifndef FUNCCALL_H
 #define FUNCCALL_H
 
+#include "../circular_dep.h"
+
 #include <string>
 #include <vector>
 
 #include "../Token.h"
 #include "Expression.h"
-
-class Token;
-class Expression;
 
 class FuncCall {
 public:

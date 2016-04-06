@@ -21,10 +21,10 @@
 #include <valarray>
 #include <stdexcept>
 
+#include "circular_dep.h"
+
 #include "Token.h"
 #include "SyntaticException.h"
-
-class Token;
 
 class FileReader {
 public:
