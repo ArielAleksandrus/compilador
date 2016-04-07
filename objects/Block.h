@@ -21,7 +21,6 @@
 #include "../circular_dep.h"
 
 #include "../SymbolTable.h"
-#include "../Unimplemented.h"
 
 #include "Variable.h"
 #include "Command.h"

@@ -379,6 +379,7 @@ FuncCall* Parser::getFuncCall(vector<Token*> tokens, int* pos){
 	return new FuncCall(name, args);
 }
 Expression* Parser::resolve(vector<Token*> tokens){
+	
 	vector<ExprOrOpToken*> eot;
 	vector<Token*> in_parenthesis;
 	Variable* v;

@@ -3,10 +3,10 @@ programa{
     int b = 3*a - 5 >= 9 ? a : 10
     int c[b];
     int d1[10], d2[b * (a - b) < 0 ? 0 : a + 3 * 9];
-    car e;
+    car e1;
     car f;
-    e = 'a';
-    f = e + 1;
+    e1 = 'a';
+    f = e1 + 1;
     c[0] = 14;
     c[1] = 1 + !(4 * a - 8 < 7) ? c[0] + b : 10 - 5 * a;
 }

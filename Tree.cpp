@@ -72,7 +72,7 @@ void Tree::semanticAnalysis() {
 	for(int i = 0; i < functions.size(); i++)
 		functions[i]->semanticAnalysis(table);
 	
-	
+	programa->semanticAnalysis(table);
 }
 
 

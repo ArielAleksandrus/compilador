@@ -26,8 +26,7 @@ Function::~Function() {
 }
 
 void Function::semanticAnalysis(SymbolTable* st){
-	SymbolTable* local = new SymbolTable();
-	local->parent = st;
+	SymbolTable* local = new SymbolTable(st);
 	
 	for(int i = 0; i < arguments.size(); i++)
 		arguments[i]->semanticAnalysis(local);

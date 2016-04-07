@@ -123,33 +123,31 @@ Token* FileReader::getString(string partial, int line_number, int i, int* start)
 }
 Token* FileReader::getCar(string partial, int line_number, int i, int* start) {
 	string res = "\'";
-	*start += 1;
+	int j = i;
 	try{
-		if(partial.at(i+1) == '\\'){
-			*start += 1;
-			res += partial.at(i+1);
-			if(partial.at(i+2) == '\''){
+		if(partial.at(++j) == '\\'){
+			res += partial.at(j);
+			if(partial.at(++j) == '\''){
 				throw new SyntaticException(line_number, *start - 1, "Invalid character");
 			}
-			res += partial.at(i+2);
-			*start += 1;
-			if(partial.at(i+3) != '\''){
+			res += partial.at(j);
+			if(partial.at(++j) != '\''){
 				throw new SyntaticException(line_number, *start - 1, "Invalid character");
 			}
-			res += partial.at(i+3);
-			return new Token(line_number, *start - 1, res, Token::LITERAL);
+			res += partial.at(j);
+			*start += j;
+			return new Token(line_number, *start, res, Token::LITERAL);
 		}
-		*start += 1;
-		res += partial.at(i+1);
-		*start += 1;
-		if(partial.at(i+2) != '\''){
-			throw new SyntaticException(line_number, *start - 1, "Invalid character");
+		res += partial.at(j); // character
+		if(partial.at(++j) != '\''){
+			throw new SyntaticException(line_number, *start + j - 1, "Invalid character");
 		}
-		res += partial.at(i+2);
+		res += partial.at(j); // closing '
 	} catch(const out_of_range& e){
 		throw new SyntaticException(line_number, *start - 1, "Unfinished character declaration");
 	}
-	return new Token(line_number, *start - 1, res, Token::LITERAL);
+	*start += j;
+	return new Token(line_number, *start, res, Token::LITERAL);
 }
 
 Token* FileReader::getNumber(string partial, int line_number, int i, int* start){

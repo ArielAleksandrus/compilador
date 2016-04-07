@@ -36,7 +36,13 @@ void Block::printBlock(){
 }
 
 void Block::semanticAnalysis(SymbolTable* st){
-	throw new Unimplemented("Unimplemented block's semantic analysis");
+	SymbolTable* local = new SymbolTable(st);
+	
+	for(int i = 0; i < variables.size(); i++)
+		variables[i]->semanticAnalysis(local);
+	
+	for(int i = 0; i < commands.size(); i++)
+		commands[i]->semanticAnalysis(local);
 }
 
 Block::~Block() {

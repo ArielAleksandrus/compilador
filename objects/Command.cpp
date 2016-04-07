@@ -102,6 +102,10 @@ void Command::printCommand(){
 	cout << "------ COMMAND ------\n\n";
 }
 
+void Command::semanticAnalysis(SymbolTable* st){
+	throw new Unimplemented("Should implement command's semanticAnalysis method");
+}
+
 Command::~Command() {
 }
 
