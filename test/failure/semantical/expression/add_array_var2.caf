@@ -1,0 +1,5 @@
+programa{
+	car c[20], d[20];
+
+	d = c + "ariel";
+}

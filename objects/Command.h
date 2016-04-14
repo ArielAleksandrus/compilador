@@ -28,8 +28,18 @@
 
 class Command {
 public:
+	static const int NAME_ONLY = 0;
+	static const int EXPR_ONLY = 1;
+	static const int BLOCK_ONLY = 2;
+	static const int NAME_EXPR = 3;
+	static const int NAME_VARIABLE = 4;
+	static const int NAME_EXPR_COMMAND = 5;
+	static const int NAME_EXPR_TOKEN_COMMAND = 6;
+	static const int NAME_EXPR_TOKEN_COMMAND_TOKEN_COMMAND = 7;
+	
 	/**
 	 * Useful for emtpy command, like ';' in se(expr) then ;
+	 * Consider removing it as I suspect it's not used.
 	 */
 	Command();
 	/**
@@ -130,6 +140,8 @@ public:
 	Variable* lval = NULL;
 	Command *aux1 = NULL, *aux2 = NULL;
 	Block* body = NULL;
+	
+	int type = -1; // the type of instance, as declared in the above constants.
 private:
 	
 };

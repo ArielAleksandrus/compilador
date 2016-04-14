@@ -30,9 +30,25 @@ SemanticException::SemanticException(int type, Token* token, Token* aux_token,
 					<< ": " << msg;
 	
 	string s = "";
+	bool aux_token_details = false;
 	switch(type){
 		case (PREVIOUSLY_FOUND): {
 			s = "'" + aux_token->lexem + "' previously found in ";
+			aux_token_details = true;
+			break;
+		}
+		case (NOT_FOUND): {
+			cout << "'" + token->lexem + "' not found" << endl;
+			break;
+		}
+		case(CONFLICTING_TYPES):{
+			s = "'" + token->lexem + "' has conflicting types. Expected '"
+							+ aux_token->lexem + "'";
+			aux_token_details = true;
+			break;
+		}
+		case(GENERIC):{
+			s = "";
 			break;
 		}
 		default:
@@ -40,8 +56,9 @@ SemanticException::SemanticException(int type, Token* token, Token* aux_token,
 							+ to_string(type) + "'");
 	}
 	
-	cout << ". " << s << "line " << aux_token->line_number << ", col "
-					<< aux_token->col_number << endl;
+	if(aux_token_details)
+		cout << ". " << s << "line " << aux_token->line_number << ", col "
+						<< aux_token->col_number << endl;
 	
 	if(terminate)
 		exit(1);

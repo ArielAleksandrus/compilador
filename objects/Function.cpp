@@ -32,9 +32,29 @@ void Function::semanticAnalysis(SymbolTable* st){
 		arguments[i]->semanticAnalysis(local);
 	
 	for(int i = 0; i < st->funcs.size(); i++){
-		if(st->funcs[i]->name->lexem == name->lexem)
-			throw new SemanticException(SemanticException::PREVIOUSLY_FOUND,
-							name, st->funcs[i]->name, "Redeclaration of function");
+		if(st->funcs[i]->name->lexem == name->lexem){
+			if(st->funcs[i]->arguments.size() == arguments.size()){
+				bool match = true;
+				for(int j = 0; j < arguments.size(); j++){
+					if(st->funcs[i]->arguments[j]->type->lexem != arguments[j]->type->lexem
+									|| st->funcs[i]->arguments[j]->is_array != arguments[j]->is_array)
+						match = false;
+				}
+				if(match){
+					string msg = "Redeclaration of function " + name->lexem + "(";
+					for(int j = 0; j < arguments.size(); j++){
+						msg += arguments[j]->type->lexem;
+						msg += arguments[j]->is_array ? "[]" : "";
+						if(j < arguments.size() - 1)
+							msg += ", ";
+					}
+					msg += "). Previously found in line "
+									+ to_string(st->funcs[i]->name->line_number) + " col "
+									+ to_string(st->funcs[i]->name->col_number);
+					throw new SemanticException(this->name, msg);
+				}
+			}
+		}
 	}
 	
 	st->funcs.push_back(this);

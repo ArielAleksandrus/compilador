@@ -25,6 +25,10 @@
 class SemanticException : public std::exception{
 public:
 	static const int PREVIOUSLY_FOUND = 0;
+	static const int NOT_FOUND = 1;
+	static const int CONFLICTING_TYPES = 2;
+	static const int GENERIC = 3;
+	
 	SemanticException(int type, Token* token, Token* aux_token, std::string msg,
 		bool terminate = true);
 	SemanticException(Token* token, std::string msg, bool terminate = true);

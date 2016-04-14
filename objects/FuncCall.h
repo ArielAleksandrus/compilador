@@ -18,9 +18,14 @@
 
 #include <string>
 #include <vector>
+#include <cstring>
 
+#include "../Unimplemented.h"
+#include "../SymbolTable.h"
 #include "../Token.h"
+
 #include "Expression.h"
+#include "Function.h"
 
 class FuncCall {
 public:
@@ -28,6 +33,10 @@ public:
 	FuncCall(Token* func_name, std::vector<Expression*> args);
 	
 	void printFuncCall();
+	
+	void semanticAnalysis(SymbolTable* st);
+	
+	Function* getFunctionDeclaration(SymbolTable* st);
 	
 	virtual ~FuncCall();
 	

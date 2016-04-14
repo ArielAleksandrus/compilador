@@ -144,7 +144,7 @@ Token* FileReader::getCar(string partial, int line_number, int i, int* start) {
 		}
 		res += partial.at(j); // closing '
 	} catch(const out_of_range& e){
-		throw new SyntaticException(line_number, *start - 1, "Unfinished character declaration");
+		throw new SyntaticException(line_number, *start + j, "Unfinished character declaration");
 	}
 	*start += j;
 	return new Token(line_number, *start, res, Token::LITERAL);

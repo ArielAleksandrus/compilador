@@ -79,14 +79,17 @@ public:
 	
 	void semanticAnalysis(SymbolTable* st);
 	
+	Variable* getDeclaration(SymbolTable* st);
+	
 	void printVariable();
 	
 	virtual ~Variable();
 	
 	Token *type = NULL, *name = NULL;
 	Expression *value = NULL, *arr_size = NULL, *arr_pos = NULL;
-	// -1 for unknown
-	int var_size;
+	
+	bool is_parameter = false;
+	bool is_array = false;
 private:
 };
 

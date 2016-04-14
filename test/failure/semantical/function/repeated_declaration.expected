@@ -1,0 +1,1 @@
+ERROR => Line 4, col 8: Redeclaration of function soma(int, car[]). Previously found in line 1 col 8

@@ -20,28 +20,35 @@ Command::Command(){
 }
 
 Command::Command(Token* name){
+	this->type = NAME_ONLY;
 	this->name = name;
 }
 Command::Command(Expression* val){
+	this->type = EXPR_ONLY;
 	this->val = val;
 }
 Command::Command(Block* body){
+	this->type = BLOCK_ONLY;
 	this->body = body;
 }
 Command::Command(Token* name, Expression* val){
+	this->type = NAME_EXPR;
 	this->name = name;
 	this->val = val;
 }
 Command::Command(Token* name, Variable* lval){
+	this->type = NAME_VARIABLE;
 	this->name = name;
 	this->lval = lval;
 }
 Command::Command(Token* name, Expression* val, Command* aux1){
+	this->type = NAME_EXPR_COMMAND;
 	this->name = name;
 	this->val = val;
 	this->aux1 = aux1;
 }
 Command::Command(Token* name, Expression* val, Token* aux_name1, Command* aux1){
+	this->type = NAME_EXPR_TOKEN_COMMAND;
 	this->name = name;
 	this->val = val;
 	this->aux_name1 = aux_name1;
@@ -49,6 +56,7 @@ Command::Command(Token* name, Expression* val, Token* aux_name1, Command* aux1){
 }
 Command::Command(Token* name, Expression* val, Token* aux_name1, Command* aux1,
 	Token* aux_name2, Command* aux2){
+	this->type = NAME_EXPR_TOKEN_COMMAND_TOKEN_COMMAND;
 	this->name = name;
 	this->val = val;
 	this->aux_name1 = aux_name1;
@@ -103,7 +111,47 @@ void Command::printCommand(){
 }
 
 void Command::semanticAnalysis(SymbolTable* st){
-	throw new Unimplemented("Should implement command's semanticAnalysis method");
+	switch(this->type){
+		case EXPR_ONLY: {
+			this->val->semanticAnalysis(st);
+			break;
+		}
+		case BLOCK_ONLY: {
+			this->body->semanticAnalysis(st);
+			break;
+		}
+		case NAME_ONLY:{
+			
+			break;
+		}
+		case NAME_VARIABLE: {
+			Variable* v = this->lval->getDeclaration(st);
+			if(v->is_array && this->lval->arr_pos == NULL)
+				throw new SemanticException(SemanticException::GENERIC, this->lval->name,
+								NULL, string("Variable is declared as array,")
+								+ string(" but it's use does not inform array position"));
+			break;
+		}
+		case NAME_EXPR: {
+			this->val->semanticAnalysis(st);
+			break;
+		}
+		case NAME_EXPR_COMMAND:
+		case NAME_EXPR_TOKEN_COMMAND:{
+			this->val->semanticAnalysis(st);
+			this->aux1->semanticAnalysis(st);
+			break;
+		}
+		case NAME_EXPR_TOKEN_COMMAND_TOKEN_COMMAND:{
+			this->val->semanticAnalysis(st);
+			this->aux1->semanticAnalysis(st);
+			this->aux2->semanticAnalysis(st);
+			break;
+		}
+		default:
+			throw new Unimplemented("Invalid command type '" + to_string(this->type)
+							+ "' in Command::semanticAnalysis");
+	}
 }
 
 Command::~Command() {

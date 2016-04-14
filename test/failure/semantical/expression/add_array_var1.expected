@@ -1,0 +1,1 @@
+ERROR => Line 2, col 24: Both lval and rval should be of type int or car. Found: INT ARRAY and INT

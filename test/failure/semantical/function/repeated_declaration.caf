@@ -1,8 +1,8 @@
-int soma(int a, int b){
-	retorne a + b;
+int soma(int a, car b[]){
+	retorne a + b[0];
 }
-int soma(int a, int b){
-	retorne a + b;
+int soma(int a, car c[]){
+	retorne a + c[0];
 }
 
 programa{}

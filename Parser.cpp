@@ -235,6 +235,7 @@ Variable* Parser::getVariable(vector<Token*> tokens, int* pos,
 						throw new SyntaticException(tokens[jmp], "Expected ']'. Found: '"
 										+ tokens[jmp]->lexem + "'");
 				}
+				arr_pos = resolve(arr_pos_tokens);
 				arr_pos_tokens.clear();
 				
 				// x[10]
@@ -265,7 +266,10 @@ Variable* Parser::getVariable(vector<Token*> tokens, int* pos,
 			}
 			
 			*pos = jmp;
-			return new Variable(name, is_array, value);
+			if(arr_pos != NULL)
+				return new Variable(name, is_array, arr_pos, value);
+			else
+				return new Variable(name, is_array, value);
 		} else {
 			*pos += 1;
 			return new Variable(tokens[jmp]);
