@@ -31,6 +31,8 @@ public:
 	
 	void semanticAnalysis(SymbolTable* st);
 	
+	void printFunction();
+	
 	Token *type, *name;
 	Block *block;
 	std::vector<Parameter*> arguments;

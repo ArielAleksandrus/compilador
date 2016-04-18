@@ -39,7 +39,6 @@ public:
 	
 	/**
 	 * Useful for emtpy command, like ';' in se(expr) then ;
-	 * Consider removing it as I suspect it's not used.
 	 */
 	Command();
 	/**

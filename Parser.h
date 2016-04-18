@@ -44,13 +44,13 @@ private:
 	Function* checkFunction(int* position);
 	Block* getBlock(int* position, std::vector<Token*> tokens);
 	
-	Expression* resolve(std::vector<Token*> tokens);
+	Expression* resolve(std::vector<Token*> tokens, bool command_bool_expr = false);
 	Expression* resolve(std::vector<ExprOrOpToken*> expr_tokens);
 	
 	std::vector<Variable*> getVariableDeclarations(int* position,
 		std::vector<Token*> tokens, bool is_global = false);
 	Variable* getVariable(std::vector<Token*> tokens, int* pos,
-		bool is_global = false);
+		bool is_global = false, bool from_command = false);
 	FuncCall* getFuncCall(std::vector<Token*> tokens, int* pos);
 	
 	std::vector<Command*> getCommands(int* position, std::vector<Token*> tokens,

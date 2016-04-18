@@ -25,3 +25,23 @@ SymbolTable::SymbolTable(SymbolTable* parent) {
 SymbolTable::~SymbolTable() {
 }
 
+void SymbolTable::printSymbolTable(){
+	cout << "\n++++++ SYMBOL TABLE ++++++\n";
+	cout << "++++++ SYMBOL TABLE FUNCTIONS ++++++\n";
+	for(int i = 0; i < this->funcs.size(); i++)
+		this->funcs[i]->printFunction();
+	cout << "------ SYMBOL TABLE FUNCTIONS ------\n\n";
+	cout << "++++++ SYMBOL TABLE PARAMETERS ++++++\n";
+	for(int i = 0; i < this->params.size(); i++)
+		this->params[i]->printParameter();
+	cout << "------ SYMBOL TABLE PARAMETERS ------\n\n";
+	cout << "++++++ SYMBOL TABLE VARS ++++++\n";
+	for(int i = 0; i < this->vars.size(); i++)
+		this->vars[i]->printVariable();
+	cout << "------ SYMBOL TABLE VARS ------\n\n";
+	cout << "++++++ SYMBOL TABLE HAS PARENT ++++++\n";
+	string hp = this->parent == NULL ? "NO" : "YES";
+	cout << hp << endl;
+	cout << "------ SYMBOL TABLE HAS PARENT ------\n";
+	cout << "\n------ SYMBOL TABLE ------\n";
+}

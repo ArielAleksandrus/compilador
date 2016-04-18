@@ -210,7 +210,7 @@ vector<Variable*> Parser::getVariableDeclarations(int* position,
 
 
 Variable* Parser::getVariable(vector<Token*> tokens, int* pos,
-				bool is_global /* = false */){
+				bool is_global /* = false */, bool from_command /* = false */){
 	vector<Token*> arr_pos_tokens, arr_size_tokens, value_tokens;
 	int jmp = *pos;
 	Token *name, *type;
@@ -253,9 +253,26 @@ Variable* Parser::getVariable(vector<Token*> tokens, int* pos,
 			// is assignment
 			if(tokens[jmp]->lexem == "="){
 				is_assignment = true;
-				while(++jmp < tokens.size() && tokens[jmp]->lexem != ";")
-					value_tokens.push_back(tokens[jmp]);
-				
+				if(from_command){
+					int open_par = 0;
+					while(++jmp < tokens.size()){
+						if(tokens[jmp]->lexem == "(")
+							open_par++;
+						else if(tokens[jmp]->lexem == ")")
+							open_par--;
+
+						if(open_par < 0)
+							break;
+						if(tokens[jmp]->is_op_type(Token::DUAL_OPERATOR)
+										|| tokens[jmp]->is_op_type(Token::TERN_OPERATOR))
+							break;
+						value_tokens.push_back(tokens[jmp]);
+					}
+				} else {
+					while(++jmp < tokens.size() && tokens[jmp]->lexem != ";"){
+						value_tokens.push_back(tokens[jmp]);
+					}
+				}
 				if(value_tokens.size() == 0)
 					throw new SyntaticException(tokens[jmp], "Expression not found");
 				value = resolve(value_tokens);
@@ -306,9 +323,26 @@ Variable* Parser::getVariable(vector<Token*> tokens, int* pos,
 					// is assignment.
 				}
 				if(tokens[jmp]->lexem == "="){
-					while(++jmp < tokens.size() && tokens[jmp]->lexem != ";"
-									&& tokens[jmp]->lexem != ","){
-						value_tokens.push_back(tokens[jmp]);
+					if(from_command){
+						int open_par = 0;
+						while(++jmp < tokens.size()){
+							if(tokens[jmp]->lexem == "(")
+								open_par++;
+							else if(tokens[jmp]->lexem == ")")
+								open_par--;
+							
+							if(open_par < 0)
+								break;
+							if(tokens[jmp]->is_op_type(Token::DUAL_OPERATOR)
+											|| tokens[jmp]->is_op_type(Token::TERN_OPERATOR))
+								break;
+							value_tokens.push_back(tokens[jmp]);
+						}
+					} else {
+						while(++jmp < tokens.size() && tokens[jmp]->lexem != ";"
+										&& tokens[jmp]->lexem != ","){
+							value_tokens.push_back(tokens[jmp]);
+						}
 					}
 					
 					value = resolve(value_tokens);
@@ -382,7 +416,8 @@ FuncCall* Parser::getFuncCall(vector<Token*> tokens, int* pos){
 	*pos = i + 1;
 	return new FuncCall(name, args);
 }
-Expression* Parser::resolve(vector<Token*> tokens){
+Expression* Parser::resolve(vector<Token*> tokens,
+				bool command_bool_expr /* = false */){
 	
 	vector<ExprOrOpToken*> eot;
 	vector<Token*> in_parenthesis;
@@ -425,7 +460,7 @@ Expression* Parser::resolve(vector<Token*> tokens){
 		} else if(tokens[i]->type == Token::LITERAL){
 			node->expr = new Expression(tokens[i]);
 			i++;
-		} else if(v = getVariable(tokens, &i)){
+		} else if(v = getVariable(tokens, &i, false, command_bool_expr)){
 			node->expr = new Expression(v);
 			v = NULL;
 		} else {
@@ -734,7 +769,7 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
 					expr_tokens.push_back(tokens[i]);
 				}
 			
-				bool_evaluation = resolve(expr_tokens);
+				bool_evaluation = resolve(expr_tokens, true);
 				if(bool_evaluation == NULL)
 					throw new SyntaticException(name_token,
 									string("Invalid expression after '") + name + string("'"));
@@ -832,17 +867,25 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
 
 					commands.push_back(new Command(name_token, bool_evaluation, aux_name1,
 									c1, aux_name2, c2));
+					
+					// it's just something like se (expr) entao command
+				} else {
+					Command* c = new Command(name_token, bool_evaluation, aux_name1, c1);
+					commands.push_back(c);
 				}
-
-
 				
 				// nothing else should be considered. Only expressions and commands.
 			} else {
 				throw new SyntaticException(tokens[i],
-								string("Invalid expression or command. Found " )
+								string("Invalid command. Found " )
 								+ tokens[i]->type_string() + string(" '")
 								+ tokens[i]->lexem + string("'"));
 			}
+		} else {
+			throw new SyntaticException(tokens[i],
+				string("Invalid expression or command. Found " )
+				+ tokens[i]->type_string() + string(" '")
+				+ tokens[i]->lexem + string("'"));
 		}
 		i++;
 	}

@@ -27,6 +27,8 @@ public:
 	SymbolTable();
 	SymbolTable(SymbolTable* parent);
 	
+	void printSymbolTable();
+	
 	virtual ~SymbolTable();
 	
 	std::vector<Function*> funcs;

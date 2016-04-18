@@ -1,0 +1,17 @@
+Léxico:
+	1. Nomes de função e variáveis podem ter caracteres underscore '_'.
+	2. Os seguintes operadores são válidos: &&, ||, nao
+
+Sintático:
+	1. Pode-se declarar variáveis dentro de expressões de commandos.
+		Por exemplo, a seguinte sintaxe é válida:
+			se(int a = 3 < b) entao { ... }
+	2.
+
+Semântico:
+	1. Pode-se fazer overload de funções, contanto que a anotação seja diferente.
+		Por exemplo, as seguintes funções poderão coexistir:
+			int soma(int a, int b) { ... }
+			int soma(int a, car b) { ... }
+			int soma(int argc, int argv[]) { ... }
+	2. 

@@ -60,3 +60,18 @@ void Function::semanticAnalysis(SymbolTable* st){
 	st->funcs.push_back(this);
 	block->semanticAnalysis(local);
 }
+
+void Function::printFunction(){
+	cout << "++++++ FUNCTION ++++++\n";
+	cout << this->type->lexem << " " << this->name->lexem << "(";
+	for(int i = 0; i < this->arguments.size(); i++){
+		cout << this->arguments[i]->type->lexem << " ";
+		cout << this->arguments[i]->name->lexem;
+		if(this->arguments[i]->is_array)
+			cout << "[]";
+		if(i < this->arguments.size() - 1)
+			cout << ", ";
+	}
+	cout << ")" << endl;
+	cout << "------ FUNCTION ------\n";
+}

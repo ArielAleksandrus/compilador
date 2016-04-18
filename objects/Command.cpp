@@ -138,14 +138,16 @@ void Command::semanticAnalysis(SymbolTable* st){
 		}
 		case NAME_EXPR_COMMAND:
 		case NAME_EXPR_TOKEN_COMMAND:{
-			this->val->semanticAnalysis(st);
-			this->aux1->semanticAnalysis(st);
+			SymbolTable* local = new SymbolTable(st);
+			this->val->semanticAnalysis(local);
+			this->aux1->semanticAnalysis(local);
 			break;
 		}
 		case NAME_EXPR_TOKEN_COMMAND_TOKEN_COMMAND:{
-			this->val->semanticAnalysis(st);
-			this->aux1->semanticAnalysis(st);
-			this->aux2->semanticAnalysis(st);
+			SymbolTable* local = new SymbolTable(local);
+			this->val->semanticAnalysis(local);
+			this->aux1->semanticAnalysis(local);
+			this->aux2->semanticAnalysis(local);
 			break;
 		}
 		default:
