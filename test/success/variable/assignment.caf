@@ -1,6 +1,6 @@
 programa{
     int a = 2, a1[a], a2 = 1;
-    int b = 3*a - 5 >= 9 ? a : 10
+    int b = 3*a - 5 >= 9 ? a : 10;
     int c[b];
     int d1[10], d2[b * (a - b) < 0 ? 0 : a + 3 * 9];
     car e1;

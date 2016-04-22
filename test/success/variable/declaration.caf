@@ -1,0 +1,9 @@
+int a = 3, b = 1;
+car c = 'c';
+
+programa{
+	int d = a + 3;
+
+	enquanto(car e1 = 'f' > c)
+		c = c + b;
+}

@@ -150,7 +150,7 @@ void Expression::semanticAnalysis(SymbolTable* st){
 			this->rval2->semanticAnalysis(st);
 			
 			int lval_type = this->lval->getExpressionType(st);
-			if(lval_type != INT || lval_type != CAR)
+			if(lval_type != INT && lval_type != CAR)
 				throw new SemanticException(this->lval->getAToken(),
 								string("Ternary expression's lval should be composed of") +
 								string(" an int or car, found: '")

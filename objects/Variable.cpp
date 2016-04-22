@@ -75,7 +75,7 @@ void Variable::printVariable(){
 }
 
 void Variable::semanticAnalysis(SymbolTable* st){
-	Variable* decl;
+	Variable* decl = NULL;
 	// is a variable declaration. check for redeclarations.
 	if(this->type != NULL){
 		for(int i = 0; i < st->params.size(); i++){
@@ -126,10 +126,14 @@ void Variable::semanticAnalysis(SymbolTable* st){
 		this->value->semanticAnalysis(st);
 		int value_type = this->value->getExpressionType(st);
 		string variable_type;
-		if(this->type != NULL)
+		bool is_arr;
+		if(this->type != NULL){
 			variable_type = this->type->lexem;
-		else
+			is_arr = this->is_array;
+		} else {
 			variable_type = decl->type->lexem;
+			is_arr = decl->is_array;
+		}
 		
 		if(variable_type == "int"){
 			if(value_type != Expression::INT && value_type != Expression::CAR){
@@ -139,7 +143,7 @@ void Variable::semanticAnalysis(SymbolTable* st){
 			}
 		}
 		if(variable_type == "car"){
-			if(decl->is_array){
+			if(is_arr){
 				if(this->arr_pos != NULL && value_type != Expression::CAR
 								&& value_type != Expression::INT)
 					throw new SemanticException(this->value->getAToken(),

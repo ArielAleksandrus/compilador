@@ -1,0 +1,4 @@
+programa{
+	se(int a = 3 <= int a = 4) entao
+		novalinha;
+}

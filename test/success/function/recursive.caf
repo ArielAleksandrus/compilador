@@ -1,0 +1,7 @@
+int fatorial(int n){
+	retorne n * fatorial(n - 1);
+}
+
+programa{
+	escreva fatorial(5);
+}
