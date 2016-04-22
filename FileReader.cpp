@@ -31,11 +31,12 @@ FileReader::FileReader(string path) {
 void FileReader::genTokens(){
 	string line;
 	int line_number = 0;
+	bool is_comment = false;
 	while(getline(this->source, line)){
 		line_number++;
 		int start = 0;
 		while(start >= 0){
-			Token* t = getWord(line, line_number, &start);
+			Token* t = getWord(line, line_number, &start, &is_comment);
 			if(t != NULL)
 				this->tokens.push_back(t);
 		}
@@ -50,7 +51,8 @@ void FileReader::genTokens(string path){
 	genTokens();
 }
 
-Token* FileReader::getWord(string line, int line_number, int* start /*= 0*/){
+Token* FileReader::getWord(string line, int line_number, int* start,
+				bool* is_comment){
 	if(*start < 0 || *start > line.length()){
 		*start = -1;
 		return NULL;
@@ -72,6 +74,19 @@ Token* FileReader::getWord(string line, int line_number, int* start /*= 0*/){
 		}
 		*start += 1;
 		char c = partial.at(i);
+		// is starting a comment.
+		if(c == '/' && i < partial.length() - 1 && partial.at(i + 1) == '*')
+			*is_comment = true;
+		// is ending a comment.
+		if(c == '*' && i < partial.length() - 1 && partial.at(i + 1) == '/'){
+			*is_comment = false;
+			*start += 2;
+			i++;
+			continue;
+		}
+		if(*is_comment)
+			continue;
+		
 		if(word == ""){
 			if(c == '\"')
 				return getString(partial, line_number, i, start);

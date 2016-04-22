@@ -85,7 +85,7 @@ public:
 private:
 	
 	
-	Token* getWord(std::string line, int line_number, int* start);
+	Token* getWord(std::string line, int line_number, int* start, bool* is_comment);
 	Token* getString(std::string partial, int line_number, int i, int* start);
 	Token* getCar(std::string partial, int line_number, int i, int* start);
 	Token* getNumber(std::string partial, int line_number, int i, int* start);
