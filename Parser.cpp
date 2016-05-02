@@ -775,6 +775,11 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
 									string("Invalid expression after '") + name + string("'"));
 				expr_tokens.clear();
 				
+				// must have at least 2 more tokens. 1 for 'entao'. other for the
+				// command.
+				if(i == tokens.size() - 2)
+					throw new SyntaticException(tokens[i], "Unexpected end of command");
+				
 				if(name == "se"){
 					if(tokens[++i]->lexem != "entao")
 						throw new SyntaticException(tokens[i],

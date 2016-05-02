@@ -1,0 +1,4 @@
+programa{
+	int a = 3, b = 4;
+	se(a > b) entao
+}
