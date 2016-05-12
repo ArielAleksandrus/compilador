@@ -35,6 +35,10 @@ Parser::Parser(vector<Token*> tokens, Tree* t) {
 		} else 
 			throw new SyntaticException(this->tokens[pos],
 							"Expected global variable, function or 'programa' declarations");
+		
+		if(pos >= tokens.size() - 1)
+			throw new SyntaticException(tokens[tokens.size() - 1],
+							"Expected block 'programa'");
 	}
 	
 	// get block programa
