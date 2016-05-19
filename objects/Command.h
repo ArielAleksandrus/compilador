@@ -132,9 +132,12 @@ public:
 	
 	virtual ~Command();
 	
+	// name of the command (e.g.: 'se', 'enquanto', 'novalinha', 'escreva', etc).
+	Token *name = NULL;
+	
 	// aux_name is used for "se (Expression) entao Command senao Command" or
 	// similar cases. aux_name1 would be entao, aux_name2 would be senao.
-	Token *name = NULL, *aux_name1 = NULL, *aux_name2 = NULL;
+	Token *aux_name1 = NULL, *aux_name2 = NULL;
 	Expression* val = NULL;
 	Variable* lval = NULL;
 	Command *aux1 = NULL, *aux2 = NULL;

@@ -17,6 +17,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 #include "../circular_dep.h"
 
@@ -24,13 +25,14 @@
 
 #include "Variable.h"
 #include "Command.h"
+#include "Function.h"
 
 class Block {
 public:
 	Block(std::vector<Variable*> variables, std::vector<Command*> commands);
 	virtual ~Block();
 	
-	void semanticAnalysis(SymbolTable* st);
+	void semanticAnalysis(SymbolTable* st, Function* parent = NULL);
 	
 	void printBlock();
 	

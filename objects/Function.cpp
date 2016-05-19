@@ -58,7 +58,7 @@ void Function::semanticAnalysis(SymbolTable* st){
 	}
 	
 	st->funcs.push_back(this);
-	block->semanticAnalysis(local);
+	block->semanticAnalysis(local, this);
 }
 
 void Function::printFunction(){
