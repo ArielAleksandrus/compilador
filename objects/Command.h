@@ -36,6 +36,7 @@ public:
 	static const int NAME_EXPR_COMMAND = 5;
 	static const int NAME_EXPR_TOKEN_COMMAND = 6;
 	static const int NAME_EXPR_TOKEN_COMMAND_TOKEN_COMMAND = 7;
+        static const int EMPTY = 8;
 	
 	/**
 	 * Useful for emtpy command, like ';' in se(expr) then ;

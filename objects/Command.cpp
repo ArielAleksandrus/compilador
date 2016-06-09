@@ -16,7 +16,7 @@
 using namespace std;
 
 Command::Command(){
-	
+	this->type = EMPTY;
 }
 
 Command::Command(Token* name){
@@ -148,6 +148,10 @@ void Command::semanticAnalysis(SymbolTable* st){
 			this->val->semanticAnalysis(local);
 			this->aux1->semanticAnalysis(local);
 			this->aux2->semanticAnalysis(local);
+			break;
+		}
+		case EMPTY: {
+			// do nothing
 			break;
 		}
 		default:

@@ -890,6 +890,8 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
 								+ tokens[i]->type_string() + string(" '")
 								+ tokens[i]->lexem + string("'"));
 			}
+		} else if(tokens[i]->lexem == ";"){
+			commands.push_back(new Command());
 		} else {
 			throw new SyntaticException(tokens[i],
 				string("Invalid expression or command. Found " )
