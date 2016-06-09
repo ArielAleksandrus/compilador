@@ -41,6 +41,7 @@ get_relative_path () {
 }
 crawl () {
 	directory=$1
+        mode=$2 # 0 for failure tests; 1 for success tests
 	cd $directory
 	rm -f *.actual
 	files=`ls`
@@ -57,27 +58,38 @@ crawl () {
 		then
 			crawl $f
 		else
-			if [[ $f == *$cafezinho_ext ]] # is a cafezinho source file
-			then
-				index=`echo $f | grep -b -o ".caf" | awk 'BEGIN{FS=":"}{print $1}'`
-				filename=`echo ${f:0:$index}`
-				$compiler_file $filename$cafezinho_ext 2>&1 | tail -1 > $comparison_file
-				if [ ! -f $filename$expected_ext ] # .expected not found
-				then
-    			ftests_pending[pending_index]=$filename$cafezinho_ext
-    			((pending_index++))
-    		else
-    			difference=`diff $comparison_file $filename$expected_ext`
-					if [ -n "$difference" ] # test has failed
-					then
-						echo $difference > $filename".actual"
-						ftests_failed[error_index]=$filename$cafezinho_ext
-						((error_index++))
-					fi
-				fi
+                    if [[ $f == *$cafezinho_ext ]] # is a cafezinho source file
+                    then
+                        index=`echo $f | grep -b -o ".caf" | awk 'BEGIN{FS=":"}{print $1}'`
+                        filename=`echo ${f:0:$index}`
+                        $compiler_file $filename$cafezinho_ext 2>&1 | tail -1 > $comparison_file
+                        if [ ! -f $filename$expected_ext ] # .expected not found
+                        then
+                            if [ $mode == 1 ] # does not need .expected
+                            then
+                                difference=`diff $comparison_file /dev/null`
+                                if [ -n "$difference" ] # test has failed
+                                then
+                                    echo $difference > $filename".actual"
+                                    ftests_failed[error_index]=$filename$cafezinho_ext
+                                    ((error_index++))
+                                fi
+                            else
+                                ftests_pending[pending_index]=$filename$cafezinho_ext
+                                ((pending_index++))
+                            fi
+                        else
+                            difference=`diff $comparison_file $filename$expected_ext`
+                            if [ -n "$difference" ] # test has failed
+                            then
+                                echo $difference > $filename".actual"
+                                ftests_failed[error_index]=$filename$cafezinho_ext
+                                ((error_index++))
+                            fi
+                        fi
 
-				rm -f $comparison_file
-			fi
+                        rm -f $comparison_file
+                    fi
 		fi
 	done
 
@@ -116,15 +128,26 @@ for f in $failure_tfiles
 do
 	if [ -d $f ]
 	then # is a directory
-		crawl $f
+		crawl $f 0
 	else # is not a directory
-		echo "not a directory:"
-		crawl $f
+		echo "not a directory:"$f
+                crawl $f
 	fi
 done
+echo "1st Test Phase Done."
 ###########################
-cd $root_path
+cd $success_test
 
 # test for success tests.
 success_tfiles=`ls $success_test`
+
+for f in $success_tfiles
+do
+	if [ -d $f ]
+	then # is a directory
+		crawl $f 1
+	else # is not a directory
+		echo "not a directory:"$f
+	fi
+done
 ###########################
