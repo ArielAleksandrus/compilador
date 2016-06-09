@@ -8,7 +8,7 @@ int soma(int a, int b){
     	b2 = b2 / 5;
     retorne a+b;
 }
-int proxChar(car a){
+car proxChar(car a){
     retorne a+1;
 }
 

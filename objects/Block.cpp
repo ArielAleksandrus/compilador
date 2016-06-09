@@ -41,14 +41,13 @@ void Block::semanticAnalysis(SymbolTable* st, Function* parent /* = NULL */ ){
 	for(int i = 0; i < variables.size(); i++)
 		variables[i]->semanticAnalysis(local);
 	
-	for(int i = 0; i < commands.size(); i++){
+	for(int i = 0; i < commands.size(); i++)
 		commands[i]->semanticAnalysis(local);
-
-	}
+	
 	if(parent != NULL){
 		int retorne_count = 0;
 		for(int i = 0; i < commands.size(); i++){
-			if(commands[i]->name->lexem == "retorne"){
+			if(commands[i]->name != NULL && commands[i]->name->lexem == "retorne"){
 				retorne_count++;
 				string expr_type = commands[i]->val->getExpressionTypeString(local);
 				transform(expr_type.begin(), expr_type.end(), expr_type.begin(), ::tolower);
@@ -62,7 +61,6 @@ void Block::semanticAnalysis(SymbolTable* st, Function* parent /* = NULL */ ){
 			throw new SemanticException(parent->name,
 							"No command 'retorne' found for this function");
 	}
-		
 }
 
 Block::~Block() {
