@@ -170,7 +170,7 @@ void Variable::semanticAnalysis(SymbolTable* st){
 Variable* Variable::getDeclaration(SymbolTable* st){
 	if(this->type != NULL)
 		return this;
-	
+
 	Variable* res = NULL;
 	while(res == NULL && st != NULL){
 		for(int i = 0; i < st->params.size(); i++){
@@ -191,10 +191,8 @@ Variable* Variable::getDeclaration(SymbolTable* st){
 		}
 		st = st->parent;
 	}
-		
 	if(res == NULL)
 		throw new SemanticException(SemanticException::NOT_FOUND, this->name,
 						NULL, "Declaration of variable ");
-	
 	return res;
 }

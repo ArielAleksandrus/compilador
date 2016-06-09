@@ -66,12 +66,13 @@ void Tree::printFunctions(){
 void Tree::semanticAnalysis() {
 	SymbolTable* table = new SymbolTable();
 	for(int i = 0; i < globals.size(); i++){
+		cout << "globals " << i << endl;
 		globals[i]->semanticAnalysis(table);
 	}
-	
+
 	for(int i = 0; i < functions.size(); i++)
 		functions[i]->semanticAnalysis(table);
-	
+
 	programa->semanticAnalysis(table);
 }
 
