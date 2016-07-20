@@ -32,6 +32,8 @@ green='\033[0;32m'
 yellow='\033[4;49;33m'
 no_color='\033[0m'
 
+has_errors=false
+
 get_relative_path () {
 	full_path=`pwd`
 	test_root_index=`echo $full_path | grep -b -o $test_path | awk 'BEGIN{FS=":"}{print $1}'`
@@ -58,44 +60,53 @@ crawl () {
 		then
 			crawl $f
 		else
-                    if [[ $f == *$cafezinho_ext ]] # is a cafezinho source file
-                    then
-                        index=`echo $f | grep -b -o ".caf" | awk 'BEGIN{FS=":"}{print $1}'`
-                        filename=`echo ${f:0:$index}`
-                        $compiler_file $filename$cafezinho_ext 2>&1 | tail -1 > $comparison_file
-                        if [ ! -f $filename$expected_ext ] # .expected not found
-                        then
-                            if [ $mode == 1 ] # does not need .expected
-                            then
-                                difference=`diff $comparison_file /dev/null`
-                                if [ -n "$difference" ] # test has failed
-                                then
-                                    echo $difference > $filename".actual"
-                                    ftests_failed[error_index]=$filename$cafezinho_ext
-                                    ((error_index++))
-                                fi
-                            else
-                                ftests_pending[pending_index]=$filename$cafezinho_ext
-                                ((pending_index++))
-                            fi
-                        else
-                            difference=`diff $comparison_file $filename$expected_ext`
-                            if [ -n "$difference" ] # test has failed
-                            then
-                                echo $difference > $filename".actual"
-                                ftests_failed[error_index]=$filename$cafezinho_ext
-                                ((error_index++))
-                            fi
-                        fi
+      if [[ $f == *$cafezinho_ext ]] # is a cafezinho source file
+      then
+        index=`echo $f | grep -b -o ".caf" | awk 'BEGIN{FS=":"}{print $1}'`
+        filename=`echo ${f:0:$index}`
+        $compiler_file $filename$cafezinho_ext 2>&1 | tail -1 > $comparison_file
+        if [ ! -f $filename$expected_ext ] # .expected not found
+        then
+          if [ $mode == 1 ] # does not need .expected
+          then
+            difference=`diff $comparison_file /dev/null`
+            if [ -n "$difference" ] # test has failed
+            then
+            	echo -ne "${red}F${no_color}"
+            	has_errors=true
+              echo $difference > $filename".actual"
+              ftests_failed[error_index]=$filename$cafezinho_ext
+              ((error_index++))
+            else
+          		echo -n "."
+            fi
+          else
+            ftests_pending[pending_index]=$filename$cafezinho_ext
+            ((pending_index++))
+          fi
+        else
+          difference=`diff $comparison_file $filename$expected_ext`
+          if [ -n "$difference" ] # test has failed
+          then
+          	has_errors=true
+            echo -ne "${red}F${no_color}"
+            echo $difference > $filename".actual"
+            ftests_failed[error_index]=$filename$cafezinho_ext
+            ((error_index++))
+          else
+          	echo -n "."
+          fi
+        fi
 
-                        rm -f $comparison_file
-                    fi
+        rm -f $comparison_file
+      fi
 		fi
 	done
-
 	number_of_failures=`echo ${#ftests_failed[@]}`
 	if [[ "$number_of_failures" != "0" ]]
 	then
+		echo -e "\n"
+		
 		get_relative_path
 		echo -e "${yellow}$relative_path${no_color}"
 		echo -e "${red}$number_of_failures tests failed:${no_color}"
@@ -108,6 +119,8 @@ crawl () {
 	number_of_pendings=`echo ${#ftests_pending[@]}`
 	if [[ "$number_of_pendings" != "0" ]]
 	then
+		echo -e "\n"
+		
 		get_relative_path
 		echo -e "${yellow}$relative_path${no_color}"
 		echo -e "$number_of_pendings tests pending:"
@@ -134,7 +147,7 @@ do
                 crawl $f
 	fi
 done
-echo "1st Test Phase Done."
+echo -e "\n1st Test Phase Done."
 ###########################
 cd $success_test
 
@@ -150,4 +163,10 @@ do
 		echo "not a directory:"$f
 	fi
 done
+echo -e "\n2nd Test Phase Done."
 ###########################
+
+if [ "$has_errors" = false ]
+then
+	echo -e "${green}All tests have passed!!${no_color}"
+fi

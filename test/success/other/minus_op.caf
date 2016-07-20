@@ -1,0 +1,4 @@
+programa{
+
+    int a = 4 - 2 + 3;
+}

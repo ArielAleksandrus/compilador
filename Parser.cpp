@@ -653,7 +653,25 @@ Expression* Parser::resolve(vector<ExprOrOpToken*> eot){
 	
 	//////////////////// resolve low priority dual ops ///////////////////////////
 	// resolve comparison ops: +, -
-	ops = {"+", "-"};
+	// + should be first, or else 4 - 2 + 3 will be evaluated as (4) - (2 + 3).
+	ops = {"+"};
+	for(int i = 0; i < eot.size(); i++){
+		if(eot[i]->op != NULL && find(ops.begin(), ops.end(), eot[i]->op->lexem)
+						!= ops.end()){
+			for(int j = 0; j < i; j++)
+				lval_eot.push_back(eot[j]);
+			
+			for(int j = i + 1; j < eot.size(); j++)
+				rval_eot.push_back(eot[j]);
+			
+			Expression* lval = resolve(lval_eot);
+			Expression* rval = resolve(rval_eot);
+			if(lval == NULL || rval == NULL)
+				throw new SyntaticException(eot[i]->op, "Not a valid expression");
+			return new Expression(lval, eot[i]->op, rval);
+		}
+	}
+	ops = {"-"};
 	for(int i = 0; i < eot.size(); i++){
 		if(eot[i]->op != NULL && find(ops.begin(), ops.end(), eot[i]->op->lexem)
 						!= ops.end()){

@@ -2,8 +2,8 @@ int add1(int x){
 	retorne x+1;
 }
 int func(int a1){
-	int a2[10], b[a1 e 1 + func(3) ? 2 : a +!!c];
-	car c;
+    car c;
+	int a2[10], b[a1 e 1 + func(3) ? 2 : a1 +!!c];
 
 	retorne 0;
 }
@@ -11,5 +11,5 @@ programa{
     int a;
     car b;
 
-    1 ou -a;
+    a = 1 ou -a;
 }
