@@ -757,11 +757,12 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
 				
 				// this command takes a variable;
 			} else if(name == "leia"){
+				i++;
 				Variable* v = getVariable(tokens, &i);
 				if(v == NULL || v->value != NULL || v->type != NULL)
 					throw new SyntaticException(tokens[i-1],
 									"Not a valid variable use");
-				if(i >= tokens.size() - 1 || tokens[i+1]->lexem != ";")
+				if(i >= tokens.size() || tokens[i]->lexem != ";")
 					throw new SyntaticException(tokens[i], "Missing ';'");
 				commands.push_back(new Command(name_token, v));
 				

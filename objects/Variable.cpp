@@ -91,7 +91,7 @@ void Variable::semanticAnalysis(SymbolTable* st){
 			}
 		}
 		st->vars.push_back(this);
-		
+		st->varAlloc += getMemSize();
 		// is a variable use. check if is declared somewhere
 	} else {
 		decl = getDeclaration(st);
@@ -195,4 +195,21 @@ Variable* Variable::getDeclaration(SymbolTable* st){
 		throw new SemanticException(SemanticException::NOT_FOUND, this->name,
 						NULL, "Declaration of variable ");
 	return res;
+}
+int Variable::getMemSize(){
+	if(this->type != NULL){
+		int typeSize;
+		if(this->type->lexem == "int")
+			typeSize = 4;
+		else if (this->type->lexem == "car")
+			typeSize = 4;
+		else
+			throw new Unimplemented("Unknown type '" + this->type->lexem + "'", true);
+		
+		if(this->is_array)
+			return 4; // pointer size.
+		else
+			return typeSize;
+	}
+	return 0;
 }

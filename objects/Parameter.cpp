@@ -37,4 +37,5 @@ void Parameter::semanticAnalysis(SymbolTable* st){
 	}
 	
 	st->params.push_back(this);
+	st->paramAlloc++;
 }

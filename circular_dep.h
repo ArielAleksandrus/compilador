@@ -13,7 +13,10 @@
 
 #ifndef CIRCULAR_DEP_H
 #define CIRCULAR_DEP_H
-
+#include <fstream>
+typedef struct Utils{
+    std::ofstream out;
+}Utils;
 class Block;
 class Command;
 class Expression;

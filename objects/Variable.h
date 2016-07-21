@@ -79,8 +79,26 @@ public:
 	
 	void semanticAnalysis(SymbolTable* st);
 	
+        /**
+         * Get the declaration of a variable.\n
+         * Example: If we see "a = 4", and we want to know where "a" was declared,
+         * we can use getDeclaration to return a Variable object of the declaration
+         * "int a" or whatever it is.
+         * @param st Local symbol table. Will be used to navigate through the
+         * parents if the variable was not found locally.
+         * @return Variable object representing the variable declaration.
+         */
 	Variable* getDeclaration(SymbolTable* st);
-	
+        
+        /**
+         * 
+         * @return the memory size for this variable. Currently, we have only
+         * "int" and "car" which occupies 4 bytes both. It can, however, be an
+         * array. In this case, it should be treated as a pointer, whose size is
+         * 4 bytes.
+         */
+	int getMemSize();
+        
 	void printVariable();
 	
 	virtual ~Variable();

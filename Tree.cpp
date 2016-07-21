@@ -15,7 +15,8 @@
 
 using namespace std;
 
-Tree::Tree() {
+Tree::Tree(Utils* u) {
+	this->utils = u;
 }
 
 void Tree::printTree(){
@@ -65,6 +66,11 @@ void Tree::printFunctions(){
 
 void Tree::semanticAnalysis() {
 	SymbolTable* table = new SymbolTable();
+	
+	this->utils->out << ".text" << endl;
+	this->utils->out << ".globl main" << endl;
+	
+	
 	for(int i = 0; i < globals.size(); i++){
 		globals[i]->semanticAnalysis(table);
 	}
@@ -72,7 +78,16 @@ void Tree::semanticAnalysis() {
 	for(int i = 0; i < functions.size(); i++)
 		functions[i]->semanticAnalysis(table);
 
+	// allocate memory for global variables.
+	this->utils->out << "addi $sp, $sp, -" << table->varAlloc << endl;
+	// jump to "programa" block.
+	this->utils->out << "jal programa" << endl;
+	
+	// "programa" block:
+	this->utils->out << "programa:" << endl;
 	programa->semanticAnalysis(table);
+	// required to exit program when using "spim".
+	this->utils->out << "jr $ra" << endl;
 }
 
 

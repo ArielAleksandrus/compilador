@@ -44,6 +44,7 @@ void Block::semanticAnalysis(SymbolTable* st, Function* parent /* = NULL */ ){
 	for(int i = 0; i < commands.size(); i++)
 		commands[i]->semanticAnalysis(local);
 	
+	// removed for being hard to detect inside a block or an expression.
 	if(parent != NULL){
 		int retorne_count = 0;
 		for(int i = 0; i < commands.size(); i++){
@@ -57,9 +58,9 @@ void Block::semanticAnalysis(SymbolTable* st, Function* parent /* = NULL */ ){
 									+ "' but told to return '" + expr_type + "'");
 			}
 		}
-		if(retorne_count == 0)
+		/*if(retorne_count == 0)
 			throw new SemanticException(parent->name,
-							"No command 'retorne' found for this function");
+							"No command 'retorne' found for this function");*/
 	}
 }
 

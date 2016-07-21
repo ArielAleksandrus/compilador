@@ -8,6 +8,21 @@ root_path=`pwd`"/"
 bin_path=`pwd`
 ####################
 
+# will generate binaries for tests
+withbin=0
+
+# parse arguments
+for i in "$@"
+do
+	case $i in
+		-wb=*|--with-binary=*)
+		withbin=1
+		shift
+		;;
+	esac
+done
+####################
+
 if [[ "${PWD##*/}" == *"$root_dirname" ]]
 then
 	bin_path+="/bin"
@@ -65,6 +80,10 @@ crawl () {
         index=`echo $f | grep -b -o ".caf" | awk 'BEGIN{FS=":"}{print $1}'`
         filename=`echo ${f:0:$index}`
         $compiler_file $filename$cafezinho_ext 2>&1 | tail -1 > $comparison_file
+        if [ $withbin == 0 ]
+        then
+        	`rm -rf a.out`
+        fi
         if [ ! -f $filename$expected_ext ] # .expected not found
         then
           if [ $mode == 1 ] # does not need .expected

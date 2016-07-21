@@ -14,6 +14,8 @@
 #include <iostream>
 #include <cstdlib>
 
+#include "circular_dep.h"
+
 #include "FileReader.h"
 #include "Parser.h"
 #include "Tree.h"
@@ -81,7 +83,10 @@ int main(int argc, char** argv) {
 	if(o->printTokens)
 		fr->printTokens();
 	
-	Tree* t = new Tree();
+	Utils u;
+	u.out.open("a.out");
+	
+	Tree* t = new Tree(&u);
 	Parser* p = new Parser(fr->getTokens(), t);
 	
 	if(o->printTree)
@@ -94,6 +99,7 @@ int main(int argc, char** argv) {
 	}
 	
 	t->semanticAnalysis();
+	u.out.close();
 	return 0;
 }
 

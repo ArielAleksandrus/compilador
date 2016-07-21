@@ -35,6 +35,9 @@ public:
 	std::vector<Parameter*> params;
 	std::vector<Variable*> vars;
 	SymbolTable* parent;
+        
+        int varAlloc = 0;
+        int paramAlloc = 0;
 private:
 };
 

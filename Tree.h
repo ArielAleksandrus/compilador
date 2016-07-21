@@ -19,6 +19,8 @@
 #include <string>
 #include <cstdlib>
 
+#include "circular_dep.h"
+
 #include "SymbolTable.h"
 
 #include "objects/Function.h"
@@ -28,7 +30,7 @@
 
 class Tree {
 public:
-	Tree();
+	Tree(Utils* u);
 	virtual ~Tree();
 	
 	void semanticAnalysis();
@@ -42,6 +44,7 @@ public:
 	std::vector<Variable*> globals;
 	Block* programa;
 private:
+    Utils* utils;
 };
 
 #endif /* TREE_H */
