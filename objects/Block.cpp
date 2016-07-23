@@ -36,7 +36,11 @@ void Block::printBlock(){
 }
 
 void Block::semanticAnalysis(SymbolTable* st, Function* parent /* = NULL */ ){
-	SymbolTable* local = new SymbolTable(st);
+	SymbolTable* local;
+	if(parent == NULL) // a local table has not been created yet for the block.
+		local = new SymbolTable(st);
+	else // Function's semantic analysis has already created the local table.
+		local = st;
 	
 	for(int i = 0; i < variables.size(); i++)
 		variables[i]->semanticAnalysis(local);
