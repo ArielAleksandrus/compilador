@@ -810,6 +810,13 @@ vector<Command*> Parser::getCommands(int* position, vector<Token*> tokens,
 					else
 						aux_name1 = tokens[i];
 				}
+				if(name == "enquanto"){
+					if(tokens[++i]->lexem != "execute")
+						throw new SyntaticException(tokens[i],
+										"Expected keyword 'execute'");
+					else
+						aux_name1 = tokens[i];
+				}
 				
 				// is block.
 				if(tokens[++i]->lexem == "{") {

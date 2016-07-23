@@ -3,3 +3,7 @@ bin/*
 nbproject/
 log/
 /build/
+a.out
+erratas.txt
+test/success/oficial
+to_do.txt

@@ -44,7 +44,7 @@ public:
 	// single char operators.
 	std::vector<char> operators = {
 		'(', ')', '[', ']', '{', '}',
-		'+', '-', '*', '/',
+		'+', '-', '*', '/', '%',
 		'=', '!',
 		',', ';', '?', ':',
 		'>', '<',
@@ -61,7 +61,7 @@ public:
 	std::vector<std::string> dual_operators = {
 		"e", "ou", "&&", "||",
 		">", "<", ">=", "<=", "==", "!=",
-		"%", "+", "-", "*", "/"
+		"%", "+", "-", "*", "/",
 	};
 	std::vector<std::string> ternary_operators = {
 		"?", ":"
@@ -73,6 +73,7 @@ public:
 		"entao",
 		"senao",
 		"enquanto",
+                "execute",
 		"leia",
 		"escreva",
 		"novalinha"

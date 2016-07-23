@@ -41,6 +41,8 @@ void FileReader::genTokens(){
 				this->tokens.push_back(t);
 		}
 	}
+	if(is_comment)
+		throw new SyntaticException(line_number, "Unfinished comment");
 }
 void FileReader::genTokens(string path){
 	this->source.open(path.c_str());
