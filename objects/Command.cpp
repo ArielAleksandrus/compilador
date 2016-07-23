@@ -110,14 +110,14 @@ void Command::printCommand(){
 	cout << "------ COMMAND ------\n\n";
 }
 
-void Command::semanticAnalysis(SymbolTable* st){
+void Command::semanticAnalysis(SymbolTable* st, Function* parent){
 	switch(this->type){
 		case EXPR_ONLY: {
 			this->val->semanticAnalysis(st);
 			break;
 		}
 		case BLOCK_ONLY: {
-			this->body->semanticAnalysis(st);
+			this->body->semanticAnalysis(st, parent);
 			break;
 		}
 		case NAME_ONLY:{
@@ -134,20 +134,29 @@ void Command::semanticAnalysis(SymbolTable* st){
 		}
 		case NAME_EXPR: {
 			this->val->semanticAnalysis(st);
+			string expr_type = this->val->getExpressionTypeString(st);
+			if(this->name->lexem == "retorne"){
+				transform(expr_type.begin(), expr_type.end(), expr_type.begin(), ::tolower);
+				if(expr_type != parent->type->lexem)
+					throw new SemanticException(this->val->getAToken(),
+									"Function type is '" + parent->type->lexem
+									+ "' but told to return '" + expr_type + "'");
+			}
+			
 			break;
 		}
 		case NAME_EXPR_COMMAND:
 		case NAME_EXPR_TOKEN_COMMAND:{
 			SymbolTable* local = new SymbolTable(st);
 			this->val->semanticAnalysis(local);
-			this->aux1->semanticAnalysis(local);
+			this->aux1->semanticAnalysis(local, parent);
 			break;
 		}
 		case NAME_EXPR_TOKEN_COMMAND_TOKEN_COMMAND:{
 			SymbolTable* local = new SymbolTable(st);
 			this->val->semanticAnalysis(local);
-			this->aux1->semanticAnalysis(local);
-			this->aux2->semanticAnalysis(local);
+			this->aux1->semanticAnalysis(local, parent);
+			this->aux2->semanticAnalysis(local, parent);
 			break;
 		}
 		case EMPTY: {

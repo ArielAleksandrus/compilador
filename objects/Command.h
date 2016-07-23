@@ -25,6 +25,7 @@
 
 #include "Expression.h"
 #include "Block.h"
+#include "Function.h"
 
 class Command {
 public:
@@ -127,7 +128,7 @@ public:
 	Command(Token* name, Expression* val, Token* aux_name1, Command* aux1,
 		Token* aux_name2, Command* aux2);
 	
-	void semanticAnalysis(SymbolTable* st);
+	void semanticAnalysis(SymbolTable* st, Function* parent);
 	
 	void printCommand();
 	
