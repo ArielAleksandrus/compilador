@@ -1,2 +1,0 @@
-check for possible dependencies on test.sh
-examples: diff, awk, grep, realpath, pwd

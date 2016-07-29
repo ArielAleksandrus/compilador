@@ -41,7 +41,21 @@ public:
 	virtual ~Parser();
 private:
 	std::vector<Token*> tokens;
+        /**
+         * Check if the tokens combination matches a function's declaration.
+         * @param position Position in the token's array on which the analysis 
+         * will start. If it is a function, 'position' gets updated.
+         * @return Function object if it's a function. NULL if not a function
+         */
 	Function* checkFunction(int* position);
+        /**
+         * Check if the next tokens form a block. If so, returns a Block object.
+         * Else, throws a Syntatic Exception
+         * @param position Position in the token's array on which the analysis
+         * will start. After the analysis, 'position' will be updated.
+         * @param tokens array of tokens
+         * @return Block object or throws syntactic exception
+         */
 	Block* getBlock(int* position, std::vector<Token*> tokens);
 	
 	Expression* resolve(std::vector<Token*> tokens, bool command_bool_expr = false);
